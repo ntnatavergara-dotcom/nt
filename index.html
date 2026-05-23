@@ -1539,6 +1539,16 @@
         <label class="form-label">Redes sociales</label>
         <input type="text" class="form-input" id="form-redes" placeholder="Ej: Instagram, TikTok, Facebook">
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input type="tel" class="form-input" id="form-telefono" placeholder="Ej: +57 300 000 0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Correo</label>
+          <input type="email" class="form-input" id="form-correo" placeholder="Ej: marca@correo.com">
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label">Contraseñas / Accesos</label>
         <div class="password-wrap">
@@ -2064,6 +2074,8 @@ window.abrirModalCliente = function(id) {
     document.getElementById('form-cantidad').value = c.cantidad || '';
     document.getElementById('form-presupuesto').value = c.presupuesto || '';
     document.getElementById('form-redes').value = c.redes || '';
+    document.getElementById('form-telefono').value = c.telefono || '';
+    document.getElementById('form-correo').value = c.correo || '';
     document.getElementById('form-passwords').value = c.passwords || '';
     S.colorSeleccionado = c.color || '#835FFD';
     S.avatarBase64 = c.avatar || null;
@@ -2082,7 +2094,7 @@ window.abrirModalCliente = function(id) {
 };
 
 function limpiarFormCliente() {
-  ['form-nombre','form-bio','form-cantidad','form-presupuesto','form-redes','form-passwords'].forEach(id => {
+  ['form-nombre','form-bio','form-cantidad','form-presupuesto','form-redes','form-telefono','form-correo','form-passwords'].forEach(id => {
     document.getElementById(id).value = '';
   });
   const prev = document.getElementById('form-avatar-preview');
