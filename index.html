@@ -1367,12 +1367,32 @@
     font-size: 0.82rem; color: var(--gris); text-align: center; padding: 16px 0;
   }
 
-  /* Desktop: 4 columnas para stats */
+  /* Layout dos columnas próximas + calendario */
+  .dash-dos-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
   @media (min-width: 900px) {
     .dash-stats {
       grid-template-columns: repeat(4, 1fr);
     }
     .dash-saludo-titulo { font-size: 1.4rem; }
+    .dash-dos-col {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .dash-dos-col > .dash-seccion:first-child {
+      width: 340px;
+      min-width: 340px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .dash-dos-col > .dash-seccion:last-child {
+      flex: 1;
+      overflow-x: auto;
+    }
   }
 
   /* ─── TOAST ─── */
@@ -1830,13 +1850,22 @@
           </div>
         </div>
 
-        <!-- Próximas publicaciones -->
-        <div class="dash-seccion">
-          <div class="dash-seccion-titulo">
-            <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">upcoming</span>
-            Próximas publicaciones
+        <!-- Dos columnas: próximas + calendario -->
+        <div class="dash-dos-col">
+          <div class="dash-seccion">
+            <div class="dash-seccion-titulo">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">upcoming</span>
+              Próximas publicaciones
+            </div>
+            <div id="dash-proximas"></div>
           </div>
-          <div id="dash-proximas"></div>
+          <div class="dash-seccion" id="dash-cal-wrap">
+            <div class="dash-seccion-titulo">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">calendar_month</span>
+              Calendario semanal
+            </div>
+            <div id="dash-calendario"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3118,7 +3147,7 @@ async function renderDashboard() {
   const proximas = todasPubs
     .filter(p => p.fecha >= hoyStr && p.estado === 'Listo')
     .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora||'').localeCompare(b.hora||''))
-    .slice(0, 8);
+    .slice(0, 10);
 
   const dashProxEl = document.getElementById('dash-proximas');
   if (!proximas.length) {
@@ -3137,7 +3166,85 @@ async function renderDashboard() {
       </div>`;
     }).join('');
   }
+
+  // Calendario del dashboard (solo desktop)
+  if (window.innerWidth >= 900) {
+    renderDashCalendario(todasPubs);
+  }
 }
+
+function renderDashCalendario(todasPubs) {
+  const el = document.getElementById('dash-calendario');
+  if (!el) return;
+
+  const hoy = new Date();
+  const lunes = getLunes(hoy, S.semanaOffset);
+  const dias = ['L','M','M','J','V','S','D'];
+  const horas = ['10:00','12:00','15:00'];
+  const etiquetasHora = ['10 AM', '12 PM', '3 PM'];
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+
+  const fechas = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    fechas.push(d);
+  }
+
+  const semanaLabel = `${formatFechaCorta(fechas[0])} — ${formatFechaCorta(fechas[6])} ${fechas[0].getFullYear()}`;
+
+  let html = `
+  <div class="cal-header" style="margin-bottom:12px;">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navDashSemana(-1)"><span class="material-symbols-rounded">chevron_left</span></button>
+      <span class="cal-semana-label" style="font-size:0.88rem">${semanaLabel}</span>
+      <button class="cal-nav-btn" onclick="navDashSemana(1)"><span class="material-symbols-rounded">chevron_right</span></button>
+      <button class="cal-nav-btn" onclick="navDashSemana(0)"><span class="material-symbols-rounded">radio_button_checked</span></button>
+    </div>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-dias-header">
+      <div class="cal-dia-header"></div>
+      ${fechas.map((d, i) => {
+        const esHoy = mismoDia(d, hoy);
+        const num = d.getDate();
+        return `<div class="cal-dia-header ${esHoy ? 'hoy' : ''}">
+          <span class="cal-dia-fecha">${esHoy ? `<span style="display:flex;align-items:center;justify-content:center;background:var(--morado);color:white;width:24px;height:24px;border-radius:50%;margin:0 auto 2px;font-size:0.78rem">${num}</span>` : num}</span>
+          ${dias[i]}
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  horas.forEach((hora, hi) => {
+    html += `<div class="cal-fila">
+      <div class="cal-hora-label">${etiquetasHora[hi]}</div>
+      ${fechas.map(d => {
+        const fechaStr = toDateStr(d);
+        const pubs = todasPubs.filter(p => p.fecha === fechaStr && p.hora === hora);
+        const esHoy = mismoDia(d, hoy);
+        return `<div class="cal-celda ${esHoy ? 'hoy' : ''}" style="min-height:70px;">
+          ${pubs.map(p => {
+            const cliente = S.clientes.find(c => c.id === p.clienteId);
+            return `<div class="cal-pub cal-pub-${p.tipo?.toLowerCase()}" 
+              onclick="seleccionarCliente('${p.clienteId}')" 
+              title="${p.titulo} — ${cliente ? cliente.nombre : ''}">
+              ${tipoIcon(p.tipo)} ${p.titulo.length > 12 ? p.titulo.slice(0,12)+'…' : p.titulo}
+            </div>`;
+          }).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+window.navDashSemana = function(dir) {
+  if (dir === 0) S.semanaOffset = 0;
+  else S.semanaOffset += dir;
+  renderDashboard();
+};
 
 // ─── INIT ───
 window.addEventListener('load', () => {
