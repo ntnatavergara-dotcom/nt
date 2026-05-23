@@ -854,8 +854,39 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ─── RESPONSIVE ─── */
+  /* ─── DRAWER MOBILE ─── */
+  .sidebar-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 150;
+    background: rgba(39,39,39,0.4);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .sidebar-overlay.open { opacity: 1; }
+
+  .btn-menu-toggle {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    color: var(--negro); padding: 6px;
+    border-radius: var(--radio-xs);
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-menu-toggle:active { background: var(--crema-oscuro); }
+
   @media (max-width: 900px) {
-    .sidebar { display: none; }
+    .btn-menu-toggle { display: flex; align-items: center; }
+    .sidebar {
+      position: fixed; top: 0; left: 0; z-index: 160;
+      height: 100vh; height: 100dvh;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: 4px 0 24px rgba(39,39,39,0.15);
+      padding-top: 70px;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.open { display: block; }
     .main-wrap { flex-direction: column; }
     .content-area { padding: 16px; }
     .cliente-header { flex-direction: column; }
@@ -1130,7 +1161,12 @@
 
 <!-- TOPBAR -->
 <header class="topbar">
-  <div class="logo">nt<span>:</span>nata</div>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <button class="btn-menu-toggle" onclick="toggleSidebar()" id="btn-menu" title="Menú">
+      <span class="material-symbols-rounded">menu</span>
+    </button>
+    <div class="logo">nt<span>:</span>nata</div>
+  </div>
   <div class="topbar-right">
     <button class="btn-nuevo-cliente" onclick="abrirModalCliente()"><span class="material-symbols-rounded">person_add</span> Nuevo cliente</button>
   </div>
@@ -1139,6 +1175,7 @@
 <!-- MAIN -->
 <div class="main-wrap">
   <!-- SIDEBAR -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="cerrarSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-title">Clientes</div>
     <div id="lista-clientes"><div class="sidebar-empty">Sin clientes aún</div></div>
@@ -1187,7 +1224,7 @@
 <!-- MOBILE NAV -->
 <nav class="mobile-nav">
   <div class="mobile-nav-inner">
-    <button class="mobile-nav-btn active" onclick="mostrarSidebarMobile()">
+    <button class="mobile-nav-btn active" id="nav-clientes-btn" onclick="toggleSidebar()">
       <span class="material-symbols-rounded nav-icon">groups</span> Clientes
     </button>
     <button class="mobile-nav-btn" onclick="abrirModalCliente()">
@@ -1467,6 +1504,7 @@ window.seleccionarCliente = async function(id) {
   S.clienteActivo = S.clientes.find(c => c.id === id);
   S.filtroTipo = 'todos';
   S.tabActiva = 'gestion';
+  cerrarSidebar();
   renderSidebar();
   await cargarPublicaciones(id);
   renderClienteHeader();
@@ -1952,10 +1990,25 @@ document.querySelectorAll('.modal-overlay').forEach(m => {
 });
 
 // ─── MOBILE SIDEBAR ───
-window.mostrarSidebarMobile = function() {
-  // En mobile, mostrar/ocultar sidebar temporalmente
+window.toggleSidebar = function() {
   const sb = document.getElementById('sidebar');
-  sb.style.display = sb.style.display === 'block' ? 'none' : 'block';
+  const overlay = document.getElementById('sidebar-overlay');
+  const isOpen = sb.classList.contains('open');
+  if (isOpen) {
+    cerrarSidebar();
+  } else {
+    sb.classList.add('open');
+    overlay.classList.add('open');
+    overlay.style.display = 'block';
+  }
+};
+
+window.cerrarSidebar = function() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  sb.classList.remove('open');
+  overlay.classList.remove('open');
+  setTimeout(() => { overlay.style.display = 'none'; }, 250);
 };
 
 // ─── TOAST ───
