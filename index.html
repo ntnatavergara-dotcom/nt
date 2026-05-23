@@ -74,6 +74,17 @@
     display: flex; align-items: center; gap: 6px;
   }
   @media (max-width: 600px) {
+    .topbar {
+      justify-content: space-between;
+    }
+    .topbar > div:first-child {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .btn-menu-toggle .material-symbols-rounded {
+      font-size: 26px;
+    }
     .btn-nuevo-cliente {
       padding: 8px;
       font-size: 0;
