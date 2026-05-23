@@ -60,9 +60,14 @@
     display: flex; align-items: center; justify-content: space-between;
   }
   .topbar-logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    /* desktop: en flujo normal, izquierda */
+  }
+  @media (max-width: 900px) {
+    .topbar-logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
   }
   /* .logo reemplazado por imagen */
   .logo span { color: var(--morado); }
