@@ -718,6 +718,7 @@
     backdrop-filter: blur(4px);
     display: flex; align-items: center; justify-content: center;
     padding: 20px;
+    overflow-x: hidden;
     opacity: 0; pointer-events: none;
     transition: opacity 0.2s;
   }
@@ -762,6 +763,10 @@
     letter-spacing: 0.8px;
     color: var(--gris);
     margin-bottom: 6px;
+  }
+  input[type="date"].form-input {
+    min-width: 0;
+    width: 100%;
   }
   .form-input, .form-select, .form-textarea {
     width: 100%;
@@ -998,6 +1003,14 @@
     .content-area { padding: 16px; }
     /* cliente-header manejado por breakpoint 600px */
     .form-row { grid-template-columns: 1fr; }
+    .form-input[type="date"] {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      font-size: 0.85rem;
+    }
+    .modal { max-width: 100%; overflow-x: hidden; }
+    .modal-body { overflow-x: hidden; }
     .cal-dias-header { grid-template-columns: 50px repeat(7, 1fr); }
     .cal-fila { grid-template-columns: 50px repeat(7, 1fr); }
     .cal-hora-label { padding: 0 6px; font-size: 0.65rem; }
