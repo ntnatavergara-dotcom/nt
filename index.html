@@ -1215,6 +1215,59 @@
   }
   .hist-link:hover { text-decoration: underline; }
 
+  /* ─── PRÓXIMAS MOBILE ─── */
+  .proximas-banner {
+    display: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 10px;
+    padding: 0 0 12px;
+    margin-bottom: 4px;
+  }
+  .proximas-banner::-webkit-scrollbar { display: none; }
+  @media (max-width: 900px) {
+    .proximas-banner { display: flex; }
+  }
+  .proxima-card {
+    flex-shrink: 0;
+    background: var(--blanco);
+    border-radius: var(--radio-sm);
+    padding: 10px 12px;
+    min-width: 150px;
+    max-width: 150px;
+    box-shadow: var(--sombra);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .proxima-card:active { transform: scale(0.97); }
+  .proxima-card-tipo {
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 3px;
+    margin-bottom: 4px; color: var(--gris);
+  }
+  .proxima-card-titulo {
+    font-size: 0.82rem; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 3px;
+  }
+  .proxima-card-fecha {
+    font-size: 0.7rem; color: var(--gris); font-weight: 600;
+  }
+  .proximas-banner-titulo {
+    display: none;
+    font-size: 0.7rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gris); margin-bottom: 8px;
+  }
+  @media (max-width: 900px) {
+    .proximas-banner-titulo { display: block; }
+  }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1644,6 +1697,12 @@
     <div id="panel-cliente" style="display:none">
       <!-- Header cliente -->
       <div class="cliente-header" id="cliente-header-el"></div>
+      <!-- Próximas mobile -->
+      <div id="proximas-banner-wrap">
+        <div class="proximas-banner-titulo">Próximas publicaciones</div>
+        <div class="proximas-banner" id="proximas-banner"></div>
+      </div>
+
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab active" onclick="cambiarTab('gestion', this)">Gestión</button>
@@ -2034,6 +2093,7 @@ function renderClienteHeader() {
 // ─── RENDER PUBLICACIONES ───
 function renderPubs() {
   actualizarPanelDerecho();
+  renderProximasBanner();
   const grid = document.getElementById('pub-grid');
   let pubs = S.publicaciones;
   if (S.filtroTipo !== 'todos') pubs = pubs.filter(p => p.tipo === S.filtroTipo);
@@ -2817,6 +2877,39 @@ function toast(msg, tipo = '') {
   el.textContent = msg;
   el.className = `toast show ${tipo}`;
   setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── PRÓXIMAS BANNER MOBILE ───
+function renderProximasBanner() {
+  const banner = document.getElementById('proximas-banner');
+  if (!banner) return;
+
+  const hoy = new Date();
+  const hoyStr = toDateStr(hoy);
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+
+  const proximas = S.publicaciones
+    .filter(p => p.fecha >= hoyStr && p.estado === 'Listo')
+    .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora || '').localeCompare(b.hora || ''))
+    .slice(0, 8);
+
+  if (!proximas.length) {
+    document.getElementById('proximas-banner-wrap').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('proximas-banner-wrap').style.display = 'block';
+  banner.innerHTML = proximas.map(p => `
+    <div class="proxima-card" onclick="editarPub('${p.id}')"
+         style="border-left-color:${colores[p.tipo] || 'var(--gris)'}">
+      <div class="proxima-card-tipo">
+        ${tipoIcon(p.tipo)} ${p.tipo || ''}
+      </div>
+      <div class="proxima-card-titulo">${p.titulo}</div>
+      <div class="proxima-card-fecha">
+        ${p.fecha ? formatFecha(p.fecha) : '—'} ${p.hora ? '· ' + formatHora(p.hora) : ''}
+      </div>
+    </div>`).join('');
 }
 
 // ─── INIT ───
