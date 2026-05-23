@@ -1650,6 +1650,14 @@
         <textarea class="form-textarea" id="pub-caption" placeholder="Texto del caption para la publicación..."></textarea>
       </div>
       <div class="form-group">
+        <label class="form-label">Link del diseño</label>
+        <div style="position:relative;">
+          <input type="url" class="form-input" id="pub-diseno" placeholder="https://www.icloud.com/..." style="padding-right:44px;">
+          <span class="material-symbols-rounded" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gris);font-size:18px;pointer-events:none;">link</span>
+        </div>
+        <p class="form-hint">Pega el link de iCloud, Drive u otro servicio.</p>
+      </div>
+      <div class="form-group">
         <label class="form-label">Hashtags</label>
         <input type="text" class="form-input" id="pub-hashtags" placeholder="#moda #tendencias #colombia">
       </div>
@@ -2207,6 +2215,7 @@ window.editarPub = function(id) {
   document.getElementById('pub-textos').value = p.textos || '';
   document.getElementById('pub-caption').value = p.caption || '';
   document.getElementById('pub-hashtags').value = p.hashtags || '';
+  document.getElementById('pub-diseno').value = p.diseno || '';
   // Tipo
   document.querySelectorAll('.tipo-option').forEach(el => {
     el.className = 'tipo-option';
@@ -2222,7 +2231,7 @@ window.editarPub = function(id) {
 };
 
 function limpiarFormPub() {
-  ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags'].forEach(id => {
+  ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags','pub-diseno'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('pub-red').value = '';
