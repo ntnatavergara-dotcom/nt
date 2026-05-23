@@ -1234,14 +1234,14 @@
     flex-shrink: 0;
     background: var(--blanco);
     border-radius: var(--radio-sm);
-    padding: 10px 12px;
-    min-width: 150px;
-    max-width: 150px;
+    padding: 8px 12px;
     box-shadow: var(--sombra);
     cursor: pointer;
     border-left: 3px solid transparent;
     transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
+    max-width: none;
+    min-width: 0;
   }
   .proxima-card:active { transform: scale(0.97); }
   .proxima-card-tipo {
@@ -2902,12 +2902,12 @@ function renderProximasBanner() {
   banner.innerHTML = proximas.map(p => `
     <div class="proxima-card" onclick="editarPub('${p.id}')"
          style="border-left-color:${colores[p.tipo] || 'var(--gris)'}">
-      <div class="proxima-card-tipo">
-        ${tipoIcon(p.tipo)} ${p.tipo || ''}
-      </div>
-      <div class="proxima-card-titulo">${p.titulo}</div>
-      <div class="proxima-card-fecha">
-        ${p.fecha ? formatFecha(p.fecha) : '—'} ${p.hora ? '· ' + formatHora(p.hora) : ''}
+      <div style="display:flex; align-items:center; gap:6px; white-space:nowrap;">
+        <span class="proxima-card-tipo" style="margin-bottom:0">${tipoIcon(p.tipo)} ${p.tipo || ''}</span>
+        <span style="color:var(--gris-claro); font-size:0.8rem;">|</span>
+        <span class="proxima-card-titulo" style="margin-bottom:0">${p.titulo}</span>
+        <span style="color:var(--gris-claro); font-size:0.8rem;">|</span>
+        <span class="proxima-card-fecha">${p.fecha ? formatFecha(p.fecha) : '—'}${p.hora ? ' · ' + formatHora(p.hora) : ''}</span>
       </div>
     </div>`).join('');
 }
