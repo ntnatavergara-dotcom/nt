@@ -2389,7 +2389,7 @@ function isMobile() {
 }
 
 function renderCalendario() {
-  if (isMobile()) {
+  if (window.innerWidth <= 1024) {
     renderCalendarioAgenda();
   } else {
     renderCalendarioSemana();
