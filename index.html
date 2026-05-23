@@ -198,11 +198,31 @@
   }
   .cliente-header-actions {
     display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  /* En mobile: avatar + acciones en fila superior, info abajo */
+  @media (max-width: 600px) {
+    .cliente-header {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .cliente-header-avatar {
+      width: 64px; height: 64px; font-size: 1.5rem;
+    }
+    .cliente-header-actions {
+      margin-left: auto;
+      align-items: flex-end;
+    }
+    .cliente-header-info {
+      width: 100%;
+      order: 3;
+    }
   }
 
   /* Botón eliminar real (solo visible cuando inactivo) */
   .btn-eliminar-real {
-    display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+    display: flex; align-items: center; gap: 6px;
     padding: 6px 10px;
     background: rgba(255,92,92,0.08);
     color: var(--rojo-coral);
@@ -213,6 +233,7 @@
     cursor: pointer;
     transition: all 0.15s;
     align-self: flex-end;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn-eliminar-real:hover { background: rgba(255,92,92,0.18); border-color: var(--rojo-coral); }
   .sidebar-empty {
@@ -338,6 +359,26 @@
   .chip-gris { background: var(--crema-oscuro); color: var(--gris); }
   .cliente-header-actions {
     display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  /* En mobile: avatar + acciones en fila superior, info abajo */
+  @media (max-width: 600px) {
+    .cliente-header {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .cliente-header-avatar {
+      width: 64px; height: 64px; font-size: 1.5rem;
+    }
+    .cliente-header-actions {
+      margin-left: auto;
+      align-items: flex-end;
+    }
+    .cliente-header-info {
+      width: 100%;
+      order: 3;
+    }
   }
   .btn-icon {
     background: var(--crema-oscuro);
@@ -889,8 +930,7 @@
     .sidebar-overlay.open { display: block; }
     .main-wrap { flex-direction: column; }
     .content-area { padding: 16px; }
-    .cliente-header { flex-direction: column; }
-    .cliente-header-actions { flex-direction: row; align-self: flex-end; }
+    /* cliente-header manejado por breakpoint 600px */
     .form-row { grid-template-columns: 1fr; }
     .cal-dias-header { grid-template-columns: 50px repeat(7, 1fr); }
     .cal-fila { grid-template-columns: 50px repeat(7, 1fr); }
@@ -1554,7 +1594,9 @@ function renderClienteHeader() {
       </div>
     </div>
     <div class="cliente-header-actions">
-      <button class="btn-icon" title="Editar" onclick="abrirModalCliente('${c.id}')" style="color:var(--morado)"><span class="material-symbols-rounded">edit</span></button>
+      <button class="btn-icon" title="Editar" onclick="abrirModalCliente('${c.id}')" style="color:var(--morado)">
+        <span class="material-symbols-rounded">edit</span>
+      </button>
       <div class="switch-row-header">
         <span class="switch-label-header">${estaActivo ? 'Activo' : 'Inactivo'}</span>
         <label class="switch">
@@ -1562,7 +1604,10 @@ function renderClienteHeader() {
           <span class="switch-slider"></span>
         </label>
       </div>
-      ${!estaActivo ? `<button class="btn-eliminar-real" onclick="eliminarClienteDefinitivo('${c.id}')"><span class="material-symbols-rounded">delete</span> Eliminar</button>` : ''}
+      ${!estaActivo ? `
+      <button class="btn-eliminar-real" onclick="eliminarClienteDefinitivo('${c.id}')">
+        <span class="material-symbols-rounded">delete</span> Eliminar
+      </button>` : ''}
     </div>
   `;
 }
