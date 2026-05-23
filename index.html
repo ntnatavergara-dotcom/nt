@@ -152,13 +152,59 @@
   }
   .cliente-estado-label.activo { color: #16a34a; }
   .cliente-estado-label.inactivo { color: #a0a0a0; }
-  .sidebar-toggle-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 0.85rem; padding: 4px; border-radius: 6px;
-    flex-shrink: 0; line-height: 1;
-    transition: background 0.15s;
+
+  /* ─── SWITCH ─── */
+  .switch-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px 0;
+    font-size: 0.78rem; font-weight: 600; color: var(--gris);
   }
-  .sidebar-toggle-btn:hover { background: var(--crema-oscuro); }
+  .switch {
+    position: relative; width: 36px; height: 20px;
+    flex-shrink: 0;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch-slider {
+    position: absolute; inset: 0;
+    background: #c4c4c4; border-radius: 20px;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .switch-slider::before {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: white; left: 3px; top: 3px;
+    transition: transform 0.2s;
+  }
+  .switch input:checked + .switch-slider { background: #22c55e; }
+  .switch input:checked + .switch-slider::before { transform: translateX(16px); }
+
+  /* Switch en header */
+  .switch-row-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 0;
+  }
+  .switch-label-header {
+    font-size: 0.78rem; font-weight: 600; color: var(--gris);
+  }
+  .cliente-header-actions {
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+  }
+
+  /* Botón eliminar real (solo visible cuando inactivo) */
+  .btn-eliminar-real {
+    display: flex; align-items: center; gap: 6px;
+    margin: 8px 20px 0;
+    padding: 8px 14px;
+    background: rgba(255,92,92,0.08);
+    color: var(--rojo-coral);
+    border: 1.5px solid rgba(255,92,92,0.25);
+    border-radius: var(--radio-xs);
+    font-family: 'Karla', sans-serif;
+    font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; width: calc(100% - 40px);
+    transition: all 0.15s;
+  }
+  .btn-eliminar-real:hover { background: rgba(255,92,92,0.18); border-color: var(--rojo-coral); }
   .sidebar-empty {
     padding: 20px;
     text-align: center;
@@ -1164,26 +1210,23 @@ function renderSidebar() {
     return;
   }
   el.innerHTML = S.clientes.map(c => {
-    const isActive = S.clienteActivo?.id === c.id;
+    const isSelected = S.clienteActivo?.id === c.id;
     const estaActivo = c.activo !== false;
     const avatarHtml = c.avatar
       ? `<img src="${c.avatar}" alt="">`
       : iniciales(c.nombre);
     return `
-    <div class="cliente-item ${isActive ? 'active' : ''}" style="${!estaActivo ? 'opacity:0.5' : ''}">
-      <div class="cliente-avatar" style="background:${c.color || '#835FFD'};cursor:pointer" onclick="seleccionarCliente('${c.id}')">${avatarHtml}</div>
-      <div class="cliente-info" style="cursor:pointer" onclick="seleccionarCliente('${c.id}')">
-        <div class="cliente-nombre">${c.nombre}</div>
+    <div class="cliente-item ${isSelected ? 'active' : ''}" onclick="seleccionarCliente('${c.id}')">
+      <div class="cliente-avatar" style="background:${estaActivo ? (c.color || '#835FFD') : '#c4c4c4'};filter:${estaActivo ? 'none' : 'grayscale(1)'}">
+        ${avatarHtml}
+      </div>
+      <div class="cliente-info">
+        <div class="cliente-nombre" style="color:${estaActivo ? 'var(--negro)' : 'var(--gris)'}">${c.nombre}</div>
         <div class="cliente-estado-row">
           <div class="cliente-estado-dot ${estaActivo ? 'activo' : 'inactivo'}"></div>
           <span class="cliente-estado-label ${estaActivo ? 'activo' : 'inactivo'}">${estaActivo ? 'Activo' : 'Inactivo'}</span>
         </div>
       </div>
-      <button class="sidebar-toggle-btn ${estaActivo ? 'desactivar' : 'activar'}"
-        onclick="confirmarEliminarCliente('${c.id}')"
-        title="${estaActivo ? 'Desactivar' : 'Activar'}">
-        ${estaActivo ? '🔴' : '🟢'}
-      </button>
     </div>`;
   }).join('');
 }
@@ -1208,6 +1251,7 @@ window.seleccionarCliente = async function(id) {
 
 function renderClienteHeader() {
   const c = S.clienteActivo;
+  const estaActivo = c.activo !== false;
   const avatarHtml = c.avatar
     ? `<img src="${c.avatar}" alt="">`
     : iniciales(c.nombre);
@@ -1225,6 +1269,14 @@ function renderClienteHeader() {
     </div>
     <div class="cliente-header-actions">
       <button class="btn-icon" title="Editar" onclick="abrirModalCliente('${c.id}')">✏️</button>
+      <div class="switch-row-header">
+        <span class="switch-label-header">${estaActivo ? 'Activo' : 'Inactivo'}</span>
+        <label class="switch">
+          <input type="checkbox" ${estaActivo ? 'checked' : ''} onchange="toggleActivoCliente('${c.id}', this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      ${!estaActivo ? `<button class="btn-eliminar-real" onclick="eliminarClienteDefinitivo('${c.id}')">🗑️ Eliminar</button>` : ''}
     </div>
   `;
 }
@@ -1462,16 +1514,10 @@ window.guardarCliente = async function() {
   } catch(e) { toast('Error al guardar', 'error'); console.error(e); }
 };
 
-window.confirmarEliminarCliente = async function(id) {
-  const cliente = S.clientes.find(c => c.id === id);
-  const estaActivo = cliente?.activo !== false;
-  const accion = estaActivo ? 'desactivar' : 'activar';
-  const nuevoEstado = !estaActivo;
-  if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} este cliente?`)) return;
+window.toggleActivoCliente = async function(id, nuevoEstado) {
   try {
     await updateDoc(doc(db, 'clientes', id), { activo: nuevoEstado });
     await cargarClientes();
-    // Si el cliente activo fue desactivado, actualizar su header
     if (S.clienteActivo?.id === id) {
       S.clienteActivo = S.clientes.find(c => c.id === id);
       renderClienteHeader();
@@ -1480,9 +1526,33 @@ window.confirmarEliminarCliente = async function(id) {
   } catch(e) { toast('Error al actualizar', 'error'); }
 };
 
+window.eliminarClienteDefinitivo = async function(id) {
+  if (!confirm('¿Eliminar este cliente permanentemente? Esta acción no se puede deshacer.')) return;
+  try {
+    await deleteDoc(doc(db, 'clientes', id));
+    const q = query(collection(db, 'publicaciones'), where('clienteId', '==', id));
+    const snap = await getDocs(q);
+    for (const d of snap.docs) await deleteDoc(d.ref);
+    if (S.clienteActivo?.id === id) {
+      S.clienteActivo = null;
+      S.publicaciones = [];
+      document.getElementById('panel-principal').style.display = 'block';
+      document.getElementById('panel-cliente').style.display = 'none';
+      document.getElementById('nav-pub-btn').style.display = 'none';
+    }
+    await cargarClientes();
+    toast('Cliente eliminado permanentemente', 'success');
+  } catch(e) { toast('Error al eliminar', 'error'); }
+};
+
 window.eliminarCliente = async function() {
   cerrarModal('modal-cliente');
-  await window.confirmarEliminarCliente(S.editandoClienteId);
+  const cliente = S.clientes.find(c => c.id === S.editandoClienteId);
+  if (cliente?.activo !== false) {
+    toast('Desactiva el cliente primero antes de eliminarlo', 'error');
+    return;
+  }
+  await window.eliminarClienteDefinitivo(S.editandoClienteId);
 };
 
 // ─── MODAL PUBLICACIÓN ───
