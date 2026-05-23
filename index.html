@@ -1891,9 +1891,15 @@
             <div id="dash-proximas"></div>
           </div>
           <div class="dash-seccion" id="dash-cal-wrap">
-            <div class="dash-seccion-titulo">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">calendar_month</span>
-              Calendario semanal
+            <div class="dash-seccion-titulo" style="justify-content:space-between; flex-wrap:wrap; gap:8px;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">calendar_month</span>
+                Calendario semanal
+              </div>
+              <select id="dash-cal-filtro" class="form-select" style="width:auto;font-size:0.78rem;padding:4px 10px;height:auto;"
+                onchange="renderDashboard()">
+                <option value="todos">Todos los clientes</option>
+              </select>
             </div>
             <div id="dash-calendario"></div>
           </div>
@@ -3223,12 +3229,29 @@ function renderDashCalendario(todasPubs) {
   const el = document.getElementById('dash-calendario');
   if (!el) return;
 
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+
+  // Poblar filtro con clientes activos
+  const filtroEl = document.getElementById('dash-cal-filtro');
+  if (filtroEl) {
+    const valorActual = filtroEl.value;
+    const clientesActivos = S.clientes.filter(c => c.activo !== false);
+    filtroEl.innerHTML = '<option value="todos">Todos los clientes</option>' +
+      clientesActivos.map(c => `<option value="${c.id}" ${valorActual === c.id ? 'selected' : ''}>${c.nombre}</option>`).join('');
+    if (valorActual && valorActual !== 'todos') filtroEl.value = valorActual;
+  }
+
+  // Filtrar publicaciones según selección
+  const filtroVal = filtroEl ? filtroEl.value : 'todos';
+  const pubsFiltradas = filtroVal === 'todos'
+    ? todasPubs
+    : todasPubs.filter(p => p.clienteId === filtroVal);
+
   const hoy = new Date();
   const lunes = getLunes(hoy, S.semanaOffset);
   const dias = ['L','M','M','J','V','S','D'];
   const horas = ['10:00','12:00','15:00'];
   const etiquetasHora = ['10 AM', '12 PM', '3 PM'];
-  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
 
   const fechas = [];
   for (let i = 0; i < 7; i++) {
@@ -3266,7 +3289,7 @@ function renderDashCalendario(todasPubs) {
       <div class="cal-hora-label">${etiquetasHora[hi]}</div>
       ${fechas.map(d => {
         const fechaStr = toDateStr(d);
-        const pubs = todasPubs.filter(p => p.fecha === fechaStr && p.hora === hora);
+        const pubs = pubsFiltradas.filter(p => p.fecha === fechaStr && p.hora === hora);
         const esHoy = mismoDia(d, hoy);
         return `<div class="cal-celda ${esHoy ? 'hoy' : ''}" style="">
           ${pubs.map(p => {
