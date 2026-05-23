@@ -1287,6 +1287,90 @@
     .proximas-banner-titulo { display: block; }
   }
 
+  /* ─── DASHBOARD ─── */
+  .dash-saludo {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .dash-saludo-titulo {
+    font-size: 1.2rem; font-weight: 800; color: var(--negro);
+    margin-bottom: 2px;
+  }
+  .dash-saludo-sub {
+    font-size: 0.82rem; color: var(--gris); font-weight: 500;
+  }
+  .dash-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .dash-stat-card {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 16px;
+    box-shadow: var(--sombra);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .dash-stat-icon {
+    font-size: 22px; margin-bottom: 4px;
+  }
+  .dash-stat-num {
+    font-size: 1.5rem; font-weight: 800; color: var(--negro); line-height: 1;
+  }
+  .dash-stat-label {
+    font-size: 0.72rem; font-weight: 600; color: var(--gris);
+  }
+  .dash-seccion {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 16px;
+  }
+  .dash-seccion-titulo {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gris); margin-bottom: 12px;
+  }
+  .dash-prox-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--crema-oscuro);
+    cursor: pointer; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dash-prox-item:last-child { border-bottom: none; }
+  .dash-prox-item:active { opacity: 0.7; }
+  .dash-prox-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .dash-prox-info { flex: 1; min-width: 0; }
+  .dash-prox-titulo {
+    font-size: 0.88rem; font-weight: 700;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .dash-prox-meta {
+    font-size: 0.72rem; color: var(--gris); font-weight: 600; margin-top: 1px;
+  }
+  .dash-prox-fecha {
+    font-size: 0.72rem; font-weight: 700; color: var(--morado);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .dash-empty {
+    font-size: 0.82rem; color: var(--gris); text-align: center; padding: 16px 0;
+  }
+
+  /* Desktop: 4 columnas para stats */
+  @media (min-width: 900px) {
+    .dash-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .dash-saludo-titulo { font-size: 1.4rem; }
+  }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1708,11 +1792,50 @@
   <!-- CONTENIDO -->
   <main class="content-area">
     <div id="panel-principal">
-      <div class="panel-vacio">
-        <div class="panel-vacio-icono"><span class="material-symbols-rounded" style="font-size:2.5rem;color:var(--morado)">brush</span></div>
-        <h3>Bienvenida, Natacha</h3>
-        <p>Crea tu primer cliente para comenzar a gestionar contenido.</p>
-        <button class="btn-primary" onclick="abrirModalCliente()"><span class="material-symbols-rounded">add</span> Crear cliente</button>
+      <div id="dashboard">
+        <!-- Saludo -->
+        <div class="dash-saludo">
+          <div>
+            <div class="dash-saludo-titulo">Bienvenida, Natacha 👋</div>
+            <div class="dash-saludo-sub">Aquí tienes un resumen de tu negocio</div>
+          </div>
+          <button class="btn-primary" onclick="abrirModalCliente()" style="white-space:nowrap; display:flex; align-items:center; gap:6px;">
+            <span class="material-symbols-rounded">person_add</span> Nuevo cliente
+          </button>
+        </div>
+
+        <!-- Stats principales -->
+        <div class="dash-stats">
+          <div class="dash-stat-card">
+            <span class="material-symbols-rounded dash-stat-icon" style="color:var(--morado)">payments</span>
+            <div class="dash-stat-num" id="dash-presupuesto">$0</div>
+            <div class="dash-stat-label">Presupuesto total</div>
+          </div>
+          <div class="dash-stat-card">
+            <span class="material-symbols-rounded dash-stat-icon" style="color:#22c55e">groups</span>
+            <div class="dash-stat-num" id="dash-clientes-activos">0</div>
+            <div class="dash-stat-label">Clientes activos</div>
+          </div>
+          <div class="dash-stat-card">
+            <span class="material-symbols-rounded dash-stat-icon" style="color:var(--azul)">calendar_month</span>
+            <div class="dash-stat-num" id="dash-pubs-mes">0</div>
+            <div class="dash-stat-label">Publicaciones este mes</div>
+          </div>
+          <div class="dash-stat-card">
+            <span class="material-symbols-rounded dash-stat-icon" style="color:var(--dorado)">pending_actions</span>
+            <div class="dash-stat-num" id="dash-pendientes">0</div>
+            <div class="dash-stat-label">Pendientes</div>
+          </div>
+        </div>
+
+        <!-- Próximas publicaciones -->
+        <div class="dash-seccion">
+          <div class="dash-seccion-titulo">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">upcoming</span>
+            Próximas publicaciones
+          </div>
+          <div id="dash-proximas"></div>
+        </div>
       </div>
     </div>
     <div id="panel-cliente" style="display:none">
@@ -2020,6 +2143,7 @@ async function cargarClientes() {
   const snap = await getDocs(collection(db, 'clientes'));
   S.clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderSidebar();
+  renderDashboard();
 }
 
 async function cargarPublicaciones(clienteId) {
@@ -2935,6 +3059,82 @@ function renderProximasBanner() {
         <span class="proxima-card-fecha">${p.fecha ? formatFecha(p.fecha) : '—'}${p.hora ? ' · ' + formatHora(p.hora) : ''}</span>
       </div>
     </div>`).join('');
+}
+
+// ─── DASHBOARD ───
+async function renderDashboard() {
+  // Cargar todas las publicaciones de todos los clientes
+  const { getDocs, collection, query, where } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+
+  const hoy = new Date();
+  const mes = hoy.getMonth() + 1;
+  const año = hoy.getFullYear();
+  const hoyStr = toDateStr(hoy);
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+
+  // Stats de clientes
+  const clientesActivos = S.clientes.filter(c => c.activo !== false);
+  const clientesInactivos = S.clientes.filter(c => c.activo === false);
+
+  // Sumar presupuesto (limpiar formato)
+  const totalPresupuesto = clientesActivos.reduce((sum, c) => {
+    if (!c.presupuesto) return sum;
+    const num = parseFloat(c.presupuesto.toString().replace(/[^0-9.]/g, ''));
+    return sum + (isNaN(num) ? 0 : num);
+  }, 0);
+
+  // Cargar todas las publicaciones
+  let todasPubs = [];
+  try {
+    const snap = await getDocs(collection(db, 'publicaciones'));
+    todasPubs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) { console.error(e); }
+
+  // Filtrar del mes
+  const pubsMes = todasPubs.filter(p => {
+    if (!p.fecha) return false;
+    const [y, m] = p.fecha.split('-').map(Number);
+    return y === año && m === mes;
+  });
+
+  const pendientes = todasPubs.filter(p => p.estado !== 'Publicado' && p.fecha >= hoyStr);
+
+  // Formatear presupuesto
+  const formatPres = (n) => {
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(1).replace('.0','') + 'M';
+    if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'K';
+    return '$' + n.toFixed(0);
+  };
+
+  // Actualizar stats
+  document.getElementById('dash-presupuesto').textContent = formatPres(totalPresupuesto);
+  document.getElementById('dash-clientes-activos').textContent = clientesActivos.length;
+  document.getElementById('dash-pubs-mes').textContent = pubsMes.length;
+  document.getElementById('dash-pendientes').textContent = pendientes.length;
+
+  // Próximas publicaciones (estado Listo, fecha >= hoy)
+  const proximas = todasPubs
+    .filter(p => p.fecha >= hoyStr && p.estado === 'Listo')
+    .sort((a, b) => a.fecha.localeCompare(b.fecha) || (a.hora||'').localeCompare(b.hora||''))
+    .slice(0, 8);
+
+  const dashProxEl = document.getElementById('dash-proximas');
+  if (!proximas.length) {
+    dashProxEl.innerHTML = '<div class="dash-empty">No hay publicaciones listas próximamente</div>';
+  } else {
+    dashProxEl.innerHTML = proximas.map(p => {
+      const cliente = S.clientes.find(c => c.id === p.clienteId);
+      return `
+      <div class="dash-prox-item" onclick="seleccionarCliente('${p.clienteId}')">
+        <div class="dash-prox-dot" style="background:${colores[p.tipo] || 'var(--gris)'}"></div>
+        <div class="dash-prox-info">
+          <div class="dash-prox-titulo">${p.titulo}</div>
+          <div class="dash-prox-meta">${cliente ? cliente.nombre : ''} · ${p.tipo || ''} · ${p.red || ''}</div>
+        </div>
+        <div class="dash-prox-fecha">${p.fecha ? formatFecha(p.fecha) : ''} ${p.hora ? formatHora(p.hora) : ''}</div>
+      </div>`;
+    }).join('');
+  }
 }
 
 // ─── INIT ───
