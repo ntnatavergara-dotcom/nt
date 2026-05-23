@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>nt:nata — Gestión de Contenido</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro: #272727;
+    --morado: #835FFD;
+    --amarillo: #f5ff00;
+    --crema: #fbf4ee;
+    --crema-oscuro: #f0e8df;
+    --blanco: #ffffff;
+    --gris: #8a8a8a;
+    --gris-claro: #e8e0d8;
+    --rojo-coral: #FF5C5C;
+    --azul: #4A90D9;
+    --stories-morado: #835FFD;
+    --dorado: #F5A623;
+    --sombra: 0 2px 12px rgba(39,39,39,0.08);
+    --sombra-hover: 0 8px 32px rgba(131,95,253,0.18);
+    --radio: 16px;
+    --radio-sm: 10px;
+    --radio-xs: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Karla', sans-serif;
+    background: var(--crema);
+    color: var(--negro);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--crema);
+    border-bottom: 2px solid var(--gris-claro);
+    padding: 0 20px;
+    height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--negro);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--morado); }
+  .topbar-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .btn-nuevo-cliente {
+    background: var(--morado);
+    color: white;
+    border: none;
+    border-radius: var(--radio-xs);
+    padding: 8px 16px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-nuevo-cliente:hover { background: #6a48e0; transform: translateY(-1px); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .main-wrap {
+    padding-top: 60px;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR CLIENTES ─── */
+  .sidebar {
+    width: 260px;
+    min-width: 260px;
+    background: var(--blanco);
+    border-right: 2px solid var(--gris-claro);
+    padding: 20px 0;
+    overflow-y: auto;
+    height: calc(100vh - 60px);
+    position: sticky;
+    top: 60px;
+  }
+  .sidebar-title {
+    font-family: 'Karla', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gris);
+    padding: 0 20px 12px;
+  }
+  .cliente-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .cliente-item:hover { background: var(--crema); }
+  .cliente-item.active {
+    background: var(--crema);
+    border-left-color: var(--morado);
+  }
+  .cliente-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .cliente-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .cliente-info { flex: 1; min-width: 0; }
+  .cliente-nombre {
+    font-weight: 600; font-size: 0.9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cliente-redes { font-size: 0.75rem; color: var(--gris); }
+  .cliente-badge {
+    background: var(--morado);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .sidebar-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--gris);
+    font-size: 0.85rem;
+  }
+
+  /* ─── CONTENIDO PRINCIPAL ─── */
+  .content-area {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    max-width: 100%;
+  }
+
+  /* ─── TABS ─── */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--crema-oscuro);
+    border-radius: var(--radio-sm);
+    padding: 4px;
+    margin-bottom: 24px;
+    width: fit-content;
+  }
+  .tab {
+    padding: 8px 20px;
+    border-radius: var(--radio-xs);
+    font-family: 'Karla', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--gris);
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--blanco);
+    color: var(--negro);
+    box-shadow: var(--sombra);
+  }
+
+  /* ─── PANEL VACÍO ─── */
+  .panel-vacio {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 16px;
+    padding: 80px 20px;
+    text-align: center;
+  }
+  .panel-vacio-icono {
+    width: 80px; height: 80px;
+    background: var(--crema-oscuro);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+  }
+  .panel-vacio h3 {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.4rem;
+    color: var(--negro);
+  }
+  .panel-vacio p { color: var(--gris); font-size: 0.9rem; max-width: 300px; }
+
+  /* ─── CLIENTE HEADER ─── */
+  .cliente-header {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--sombra);
+    display: flex; align-items: flex-start; gap: 20px;
+  }
+  .cliente-header-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .cliente-header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .cliente-header-avatar:hover::after {
+    content: '📷';
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+  }
+  .cliente-header-info { flex: 1; }
+  .cliente-header-nombre {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .cliente-header-bio {
+    color: var(--gris);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .cliente-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .chip-morado { background: rgba(131,95,253,0.12); color: var(--morado); }
+  .chip-amarillo { background: rgba(245,255,0,0.25); color: #7a7a00; }
+  .chip-gris { background: var(--crema-oscuro); color: var(--gris); }
+  .cliente-header-actions {
+    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
+  }
+  .btn-icon {
+    background: var(--crema-oscuro);
+    border: none; border-radius: var(--radio-xs);
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem; transition: all 0.15s;
+  }
+  .btn-icon:hover { background: var(--gris-claro); }
+
+  /* ─── PUBLICACIONES GRID ─── */
+  .pub-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .pub-toolbar-left {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .pub-titulo {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.2rem; font-weight: 600;
+  }
+  .filtro-tipo {
+    display: flex; gap: 4px;
+  }
+  .filtro-btn {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--gris-claro);
+    background: transparent;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--gris);
+    transition: all 0.15s;
+  }
+  .filtro-btn.active, .filtro-btn:hover {
+    border-color: var(--negro);
+    color: var(--negro);
+    background: var(--crema-oscuro);
+  }
+  .btn-add-pub {
+    background: var(--amarillo);
+    color: var(--negro);
+    border: none;
+    border-radius: var(--radio-xs);
+    padding: 9px 18px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-add-pub:hover { transform: translateY(-1px); box-shadow: var(--sombra-hover); }
+
+  .pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  /* ─── TARJETA PUBLICACIÓN ─── */
+  .pub-card {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 18px;
+    box-shadow: var(--sombra);
+    transition: all 0.2s;
+    cursor: pointer;
+    border: 2px solid transparent;
+    position: relative;
+  }
+  .pub-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sombra-hover);
+    border-color: var(--morado);
+  }
+  .pub-card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .pub-tipo-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tipo-reel { background: rgba(255,92,92,0.12); color: var(--rojo-coral); }
+  .tipo-post { background: rgba(74,144,217,0.12); color: var(--azul); }
+  .tipo-stories { background: rgba(131,95,253,0.12); color: var(--morado); }
+  .tipo-carrusel { background: rgba(245,166,35,0.12); color: var(--dorado); }
+
+  .pub-estado {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .pub-estado::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .estado-idea::before { background: var(--gris); }
+  .estado-produccion::before { background: var(--amarillo); filter: brightness(0.7); }
+  .estado-listo::before { background: #22c55e; }
+  .estado-publicado::before { background: var(--morado); }
+
+  .pub-titulo-card {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .pub-caption {
+    font-size: 0.82rem;
+    color: var(--gris);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .pub-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--crema-oscuro);
+    font-size: 0.78rem;
+    color: var(--gris);
+  }
+  .pub-meta-left { display: flex; align-items: center; gap: 8px; }
+  .pub-red {
+    font-weight: 600; color: var(--negro);
+  }
+  .pub-medida {
+    background: var(--crema-oscuro);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: monospace;
+  }
+  .pub-card-actions {
+    position: absolute; top: 12px; right: 12px;
+    display: none; gap: 4px;
+  }
+  .pub-card:hover .pub-card-actions { display: flex; }
+
+  /* ─── CALENDARIO ─── */
+  .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .cal-nav {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .cal-nav-btn {
+    width: 32px; height: 32px;
+    border: 1.5px solid var(--gris-claro);
+    border-radius: var(--radio-xs);
+    background: var(--blanco);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+  }
+  .cal-nav-btn:hover { background: var(--crema-oscuro); }
+  .cal-semana-label {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1rem; font-weight: 600;
+  }
+  .cal-leyenda {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .leyenda-item {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 0.75rem; font-weight: 600; color: var(--gris);
+  }
+  .leyenda-dot {
+    width: 10px; height: 10px; border-radius: 2px;
+  }
+
+  .cal-grid {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    overflow: hidden;
+    box-shadow: var(--sombra);
+  }
+  .cal-dias-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    border-bottom: 2px solid var(--crema-oscuro);
+  }
+  .cal-dia-header {
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gris);
+  }
+  .cal-dia-header.hoy {
+    color: var(--morado);
+  }
+  .cal-dia-fecha {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--negro);
+    display: block;
+    margin-bottom: 2px;
+  }
+  .cal-dia-header.hoy .cal-dia-fecha {
+    background: var(--morado);
+    color: white;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 2px;
+  }
+
+  .cal-hora-label {
+    padding: 0 12px;
+    display: flex; align-items: center; justify-content: flex-end;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gris);
+    border-right: 1px solid var(--crema-oscuro);
+    height: 100px;
+  }
+  .cal-fila {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    border-bottom: 1px solid var(--crema-oscuro);
+  }
+  .cal-fila:last-child { border-bottom: none; }
+  .cal-celda {
+    border-right: 1px solid var(--crema-oscuro);
+    padding: 6px;
+    min-height: 100px;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .cal-celda:last-child { border-right: none; }
+  .cal-celda:hover { background: var(--crema); }
+  .cal-celda.hoy { background: rgba(131,95,253,0.04); }
+
+  .cal-pub {
+    border-radius: 6px;
+    padding: 5px 7px;
+    margin-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cal-pub:hover { filter: brightness(0.92); transform: scale(1.02); }
+  .cal-pub-reel { background: rgba(255,92,92,0.15); color: #c0392b; border-left: 3px solid var(--rojo-coral); }
+  .cal-pub-post { background: rgba(74,144,217,0.15); color: #1a5276; border-left: 3px solid var(--azul); }
+  .cal-pub-stories { background: rgba(131,95,253,0.15); color: #5b2fc9; border-left: 3px solid var(--morado); }
+  .cal-pub-carrusel { background: rgba(245,166,35,0.15); color: #935a00; border-left: 3px solid var(--dorado); }
+
+  /* ─── MODAL ─── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(39,39,39,0.5);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    width: 100%; max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 80px rgba(39,39,39,0.2);
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--crema-oscuro);
+    position: sticky; top: 0; background: var(--blanco);
+    z-index: 1;
+  }
+  .modal-titulo {
+    font-family: 'Crimson Text', serif;
+    font-size: 1.3rem; font-weight: 600;
+  }
+  .modal-body { padding: 24px; }
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--crema-oscuro);
+    display: flex; justify-content: flex-end; gap: 10px;
+    position: sticky; bottom: 0; background: var(--blanco);
+  }
+
+  /* ─── FORMULARIO ─── */
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--gris);
+    margin-bottom: 6px;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gris-claro);
+    border-radius: var(--radio-xs);
+    font-family: 'Karla', sans-serif;
+    font-size: 0.9rem;
+    color: var(--negro);
+    background: var(--crema);
+    transition: all 0.15s;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--morado);
+    background: var(--blanco);
+    box-shadow: 0 0 0 3px rgba(131,95,253,0.1);
+  }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-hint {
+    font-size: 0.75rem; color: var(--gris); margin-top: 4px;
+  }
+
+  /* Tipo selector */
+  .tipo-selector {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  }
+  .tipo-option {
+    border: 2px solid var(--gris-claro);
+    border-radius: var(--radio-xs);
+    padding: 10px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .tipo-option .tipo-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+  .tipo-option:hover { border-color: var(--negro); }
+  .tipo-option.selected-reel { border-color: var(--rojo-coral); background: rgba(255,92,92,0.08); color: var(--rojo-coral); }
+  .tipo-option.selected-post { border-color: var(--azul); background: rgba(74,144,217,0.08); color: var(--azul); }
+  .tipo-option.selected-stories { border-color: var(--morado); background: rgba(131,95,253,0.08); color: var(--morado); }
+  .tipo-option.selected-carrusel { border-color: var(--dorado); background: rgba(245,166,35,0.08); color: var(--dorado); }
+
+  /* Auto badge */
+  .auto-badge {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--crema-oscuro);
+    border-radius: var(--radio-xs);
+    padding: 10px 14px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+  }
+  .auto-color { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  .auto-medida { font-family: monospace; font-weight: 700; font-size: 0.8rem; }
+
+  /* Estado selector */
+  .estado-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+  .estado-option {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--gris-claro);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: transparent;
+    color: var(--gris);
+    font-family: 'Karla', sans-serif;
+  }
+  .estado-option:hover { border-color: var(--negro); color: var(--negro); }
+  .estado-option.sel-idea { border-color: var(--gris); background: rgba(138,138,138,0.1); color: var(--gris); }
+  .estado-option.sel-produccion { border-color: #b8a000; background: rgba(245,255,0,0.15); color: #7a6a00; }
+  .estado-option.sel-listo { border-color: #22c55e; background: rgba(34,197,94,0.1); color: #166534; }
+  .estado-option.sel-publicado { border-color: var(--morado); background: rgba(131,95,253,0.1); color: var(--morado); }
+
+  /* Botones */
+  .btn-primary {
+    background: var(--morado);
+    color: white; border: none;
+    border-radius: var(--radio-xs);
+    padding: 10px 20px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #6a48e0; }
+  .btn-secondary {
+    background: var(--crema-oscuro);
+    color: var(--negro); border: none;
+    border-radius: var(--radio-xs);
+    padding: 10px 20px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: var(--gris-claro); }
+  .btn-danger {
+    background: rgba(255,92,92,0.1);
+    color: var(--rojo-coral); border: none;
+    border-radius: var(--radio-xs);
+    padding: 10px 20px;
+    font-family: 'Karla', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-danger:hover { background: rgba(255,92,92,0.2); }
+
+  /* Imagen perfil upload */
+  .avatar-upload {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 4px;
+  }
+  .avatar-preview {
+    width: 60px; height: 60px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Crimson Text', serif; font-size: 1.4rem;
+    font-weight: 600; color: white; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-upload-btn {
+    border: 1.5px dashed var(--gris-claro);
+    border-radius: var(--radio-xs);
+    padding: 10px 16px;
+    font-size: 0.82rem; color: var(--gris);
+    cursor: pointer; background: none;
+    font-family: 'Karla', sans-serif;
+    transition: all 0.15s;
+  }
+  .avatar-upload-btn:hover { border-color: var(--morado); color: var(--morado); }
+
+  /* Password field */
+  .password-wrap { position: relative; }
+  .password-wrap .form-input { padding-right: 40px; }
+  .password-toggle {
+    position: absolute; right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none; border: none; cursor: pointer;
+    font-size: 1rem; color: var(--gris);
+  }
+
+  /* Colores de cliente */
+  .color-options {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .color-opt {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .color-opt.selected { border-color: var(--negro); transform: scale(1.1); }
+  .color-opt-custom {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px dashed var(--gris);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+  }
+  .color-opt-custom input { opacity: 0; position: absolute; }
+
+  /* ─── TOAST ─── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 300;
+    background: var(--negro);
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radio-sm);
+    font-size: 0.88rem;
+    font-weight: 500;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: #166534; }
+  .toast.error { background: #991b1b; }
+
+  /* ─── LOADING ─── */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 60px; color: var(--gris); gap: 10px;
+    font-size: 0.9rem;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--gris-claro);
+    border-top-color: var(--morado);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main-wrap { flex-direction: column; }
+    .content-area { padding: 16px; }
+    .cliente-header { flex-direction: column; }
+    .cliente-header-actions { flex-direction: row; align-self: flex-end; }
+    .form-row { grid-template-columns: 1fr; }
+    .cal-dias-header { grid-template-columns: 50px repeat(7, 1fr); }
+    .cal-fila { grid-template-columns: 50px repeat(7, 1fr); }
+    .cal-hora-label { padding: 0 6px; font-size: 0.65rem; }
+  }
+  @media (max-width: 600px) {
+    .pub-grid { grid-template-columns: 1fr; }
+    .tipo-selector { grid-template-columns: repeat(2, 1fr); }
+    .tabs { width: 100%; }
+    .tab { flex: 1; text-align: center; }
+    .topbar { padding: 0 14px; }
+    .logo { font-size: 1.2rem; }
+    .cal-dia-header { padding: 8px 3px; font-size: 0.6rem; }
+    .cal-celda { padding: 3px; }
+    .cal-pub { font-size: 0.65rem; padding: 3px 4px; }
+  }
+
+  /* ─── MOBILE NAV ─── */
+  .mobile-nav {
+    display: none;
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+    background: var(--blanco);
+    border-top: 2px solid var(--gris-claro);
+    padding: 8px 0 env(safe-area-inset-bottom);
+  }
+  .mobile-nav-inner {
+    display: flex; justify-content: space-around;
+  }
+  .mobile-nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    padding: 6px 16px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Karla', sans-serif; font-size: 0.65rem; font-weight: 600;
+    color: var(--gris); transition: color 0.15s;
+  }
+  .mobile-nav-btn.active { color: var(--morado); }
+  .mobile-nav-btn .nav-icon { font-size: 1.2rem; }
+  @media (max-width: 900px) {
+    .mobile-nav { display: block; }
+    .content-area { padding-bottom: 80px; }
+  }
+
+  .input-file-hidden { display: none; }
+
+  /* Detail modal extra */
+  .detail-section { margin-bottom: 16px; }
+  .detail-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--gris); margin-bottom: 4px; }
+  .detail-value { font-size: 0.92rem; line-height: 1.5; }
+  .hashtags-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hashtag { background: rgba(131,95,253,0.1); color: var(--morado); padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="logo">nt<span>:</span>nata</div>
+  <div class="topbar-right">
+    <button class="btn-nuevo-cliente" onclick="abrirModalCliente()">+ Nuevo cliente</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-title">Clientes</div>
+    <div id="lista-clientes"><div class="sidebar-empty">Sin clientes aún</div></div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <main class="content-area">
+    <div id="panel-principal">
+      <div class="panel-vacio">
+        <div class="panel-vacio-icono">🎨</div>
+        <h3>Bienvenida, Natacha</h3>
+        <p>Crea tu primer cliente para comenzar a gestionar contenido.</p>
+        <button class="btn-primary" onclick="abrirModalCliente()">+ Crear cliente</button>
+      </div>
+    </div>
+    <div id="panel-cliente" style="display:none">
+      <!-- Header cliente -->
+      <div class="cliente-header" id="cliente-header-el"></div>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="cambiarTab('gestion', this)">Gestión</button>
+        <button class="tab" onclick="cambiarTab('calendario', this)">Calendario</button>
+      </div>
+      <!-- Panels -->
+      <div id="tab-gestion">
+        <div class="pub-toolbar">
+          <div class="pub-toolbar-left">
+            <span class="pub-titulo">Publicaciones</span>
+            <div class="filtro-tipo" id="filtros-tipo">
+              <button class="filtro-btn active" onclick="filtrarTipo('todos', this)">Todos</button>
+              <button class="filtro-btn" onclick="filtrarTipo('Reel', this)">Reel</button>
+              <button class="filtro-btn" onclick="filtrarTipo('Post', this)">Post</button>
+              <button class="filtro-btn" onclick="filtrarTipo('Stories', this)">Stories</button>
+              <button class="filtro-btn" onclick="filtrarTipo('Carrusel', this)">Carrusel</button>
+            </div>
+          </div>
+          <button class="btn-add-pub" onclick="abrirModalPub()">+ Publicación</button>
+        </div>
+        <div class="pub-grid" id="pub-grid"></div>
+      </div>
+      <div id="tab-calendario" style="display:none"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mobile-nav-btn active" onclick="mostrarSidebarMobile()">
+      <span class="nav-icon">👥</span> Clientes
+    </button>
+    <button class="mobile-nav-btn" onclick="abrirModalCliente()">
+      <span class="nav-icon">＋</span> Nuevo
+    </button>
+    <button class="mobile-nav-btn" id="nav-pub-btn" onclick="abrirModalPub()" style="display:none">
+      <span class="nav-icon">📝</span> Publicar
+    </button>
+  </div>
+</nav>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-cliente-titulo">Nuevo cliente</span>
+      <button class="btn-icon" onclick="cerrarModal('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Foto de perfil</label>
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="form-avatar-preview" style="background:#835FFD">N</div>
+          <button class="avatar-upload-btn" onclick="document.getElementById('avatar-file').click()">📷 Subir foto</button>
+          <input type="file" id="avatar-file" class="input-file-hidden" accept="image/*" onchange="handleAvatarUpload(event)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nombre del cliente *</label>
+          <input type="text" class="form-input" id="form-nombre" placeholder="Ej: Tienda Modas">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color asignado</label>
+          <div class="color-options" id="color-options">
+            <div class="color-opt selected" style="background:#835FFD" data-color="#835FFD" onclick="selColor(this)"></div>
+            <div class="color-opt" style="background:#FF5C5C" data-color="#FF5C5C" onclick="selColor(this)"></div>
+            <div class="color-opt" style="background:#4A90D9" data-color="#4A90D9" onclick="selColor(this)"></div>
+            <div class="color-opt" style="background:#22c55e" data-color="#22c55e" onclick="selColor(this)"></div>
+            <div class="color-opt" style="background:#F5A623" data-color="#F5A623" onclick="selColor(this)"></div>
+            <div class="color-opt" style="background:#272727" data-color="#272727" onclick="selColor(this)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Biografía / Enfoque de contenido</label>
+        <textarea class="form-textarea" id="form-bio" placeholder="Describe el cliente, su nicho, tono de comunicación..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Cantidad de publicaciones/mes</label>
+          <input type="number" class="form-input" id="form-cantidad" placeholder="Ej: 12" min="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presupuesto mensual</label>
+          <input type="text" class="form-input" id="form-presupuesto" placeholder="Ej: $500.000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Redes sociales</label>
+        <input type="text" class="form-input" id="form-redes" placeholder="Ej: Instagram, TikTok, Facebook">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseñas / Accesos</label>
+        <div class="password-wrap">
+          <input type="password" class="form-input" id="form-passwords" placeholder="Contraseñas o notas de acceso">
+          <button class="password-toggle" onclick="togglePassword()">👁</button>
+        </div>
+        <p class="form-hint">Esta información es privada y solo visible en la app.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="cerrarModal('modal-cliente')">Cancelar</button>
+      <button class="btn-danger" id="btn-eliminar-cliente" style="display:none; margin-right:auto" onclick="eliminarCliente()">Eliminar</button>
+      <button class="btn-primary" onclick="guardarCliente()">Guardar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PUBLICACIÓN -->
+<div class="modal-overlay" id="modal-pub">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-pub-titulo">Nueva publicación</span>
+      <button class="btn-icon" onclick="cerrarModal('modal-pub')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tipo de publicación *</label>
+        <div class="tipo-selector">
+          <div class="tipo-option" data-tipo="Reel" onclick="selTipo(this)">
+            <span class="tipo-icon">🎬</span> Reel
+          </div>
+          <div class="tipo-option" data-tipo="Post" onclick="selTipo(this)">
+            <span class="tipo-icon">🖼️</span> Post
+          </div>
+          <div class="tipo-option" data-tipo="Stories" onclick="selTipo(this)">
+            <span class="tipo-icon">⭕</span> Stories
+          </div>
+          <div class="tipo-option" data-tipo="Carrusel" onclick="selTipo(this)">
+            <span class="tipo-icon">📑</span> Carrusel
+          </div>
+        </div>
+        <div id="auto-format-badge" style="display:none" class="auto-badge">
+          <div class="auto-color" id="auto-color"></div>
+          <span id="auto-medida" class="auto-medida"></span>
+          <span id="auto-label" style="color:var(--gris); font-size:0.8rem"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input type="text" class="form-input" id="pub-titulo" placeholder="Ej: Lanzamiento nueva colección">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Red social</label>
+          <select class="form-select" id="pub-red">
+            <option value="">Seleccionar...</option>
+            <option>Instagram</option>
+            <option>TikTok</option>
+            <option>Facebook</option>
+            <option>LinkedIn</option>
+            <option>YouTube</option>
+            <option>X / Twitter</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fecha de publicación</label>
+          <input type="date" class="form-input" id="pub-fecha">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <select class="form-select" id="pub-hora">
+            <option value="10:00">10:00 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <div class="estado-selector" id="estado-selector">
+            <button class="estado-option sel-idea" data-estado="Idea" onclick="selEstado(this)">💡 Idea</button>
+            <button class="estado-option" data-estado="Producción" onclick="selEstado(this)">⚙️ Producción</button>
+            <button class="estado-option" data-estado="Listo" onclick="selEstado(this)">✅ Listo</button>
+            <button class="estado-option" data-estado="Publicado" onclick="selEstado(this)">🚀 Publicado</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Idea visual</label>
+        <textarea class="form-textarea" id="pub-visual" placeholder="Describe el concepto visual, colores, referencias..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Textos / Voz en off</label>
+        <textarea class="form-textarea" id="pub-textos" placeholder="Guion, textos en pantalla o voz en off..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Caption</label>
+        <textarea class="form-textarea" id="pub-caption" placeholder="Texto del caption para la publicación..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hashtags</label>
+        <input type="text" class="form-input" id="pub-hashtags" placeholder="#moda #tendencias #colombia">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="cerrarModal('modal-pub')">Cancelar</button>
+      <button class="btn-danger" id="btn-eliminar-pub" style="display:none; margin-right:auto" onclick="eliminarPub()">Eliminar</button>
+      <button class="btn-primary" onclick="guardarPub()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDHvOWUT9GpNw_HR38lwWbbY4aNetbRckM",
+  authDomain: "gestion-contenido.firebaseapp.com",
+  projectId: "gestion-contenido",
+  storageBucket: "gestion-contenido.firebasestorage.app",
+  messagingSenderId: "269271883561",
+  appId: "1:269271883561:web:f3ca35c53fa37a3588a138"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ─── ESTADO ───
+window._state = {
+  clientes: [],
+  publicaciones: [],
+  clienteActivo: null,
+  editandoClienteId: null,
+  editandoPubId: null,
+  tipoSeleccionado: null,
+  estadoSeleccionado: 'Idea',
+  colorSeleccionado: '#835FFD',
+  avatarBase64: null,
+  filtroTipo: 'todos',
+  tabActiva: 'gestion',
+  semanaOffset: 0,
+};
+const S = window._state;
+
+const TIPOS = {
+  Reel:     { color: '#FF5C5C', medida: '1080 × 1920 px', label: 'Vertical · 9:16' },
+  Post:     { color: '#4A90D9', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
+  Stories:  { color: '#835FFD', medida: '1080 × 1920 px', label: 'Vertical · 9:16' },
+  Carrusel: { color: '#F5A623', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
+};
+const ESTADOS = {
+  'Idea': 'idea', 'Producción': 'produccion', 'Listo': 'listo', 'Publicado': 'publicado'
+};
+const HORAS = { '10:00': 0, '12:00': 1, '15:00': 2 };
+
+// ─── FIREBASE HELPERS ───
+async function cargarClientes() {
+  const snap = await getDocs(collection(db, 'clientes'));
+  S.clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderSidebar();
+}
+
+async function cargarPublicaciones(clienteId) {
+  const q = query(collection(db, 'publicaciones'), where('clienteId', '==', clienteId));
+  const snap = await getDocs(q);
+  S.publicaciones = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderPubs();
+  renderCalendario();
+}
+
+// ─── RENDER SIDEBAR ───
+function renderSidebar() {
+  const el = document.getElementById('lista-clientes');
+  if (!S.clientes.length) {
+    el.innerHTML = '<div class="sidebar-empty">Sin clientes aún</div>';
+    return;
+  }
+  el.innerHTML = S.clientes.map(c => {
+    const pubs = S.clienteActivo?.id === c.id ? S.publicaciones.length : '—';
+    const isActive = S.clienteActivo?.id === c.id;
+    const avatarHtml = c.avatar
+      ? `<img src="${c.avatar}" alt="">`
+      : iniciales(c.nombre);
+    return `
+    <div class="cliente-item ${isActive ? 'active' : ''}" onclick="seleccionarCliente('${c.id}')">
+      <div class="cliente-avatar" style="background:${c.color || '#835FFD'}">${avatarHtml}</div>
+      <div class="cliente-info">
+        <div class="cliente-nombre">${c.nombre}</div>
+        <div class="cliente-redes">${c.redes || 'Sin redes'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function iniciales(nombre) {
+  return nombre.split(' ').map(p => p[0]).join('').slice(0,2).toUpperCase();
+}
+
+// ─── SELECCIONAR CLIENTE ───
+window.seleccionarCliente = async function(id) {
+  S.clienteActivo = S.clientes.find(c => c.id === id);
+  S.filtroTipo = 'todos';
+  S.tabActiva = 'gestion';
+  renderSidebar();
+  await cargarPublicaciones(id);
+  renderClienteHeader();
+  document.getElementById('panel-principal').style.display = 'none';
+  document.getElementById('panel-cliente').style.display = 'block';
+  document.getElementById('nav-pub-btn').style.display = 'flex';
+  cambiarTab('gestion', document.querySelector('.tab'));
+};
+
+function renderClienteHeader() {
+  const c = S.clienteActivo;
+  const avatarHtml = c.avatar
+    ? `<img src="${c.avatar}" alt="">`
+    : iniciales(c.nombre);
+  document.getElementById('cliente-header-el').innerHTML = `
+    <div class="cliente-header-avatar" style="background:${c.color || '#835FFD'}"
+         onclick="abrirModalCliente('${c.id}')">${avatarHtml}</div>
+    <div class="cliente-header-info">
+      <div class="cliente-header-nombre">${c.nombre}</div>
+      <div class="cliente-header-bio">${c.bio || 'Sin biografía'}</div>
+      <div class="cliente-chips">
+        ${c.redes ? `<span class="chip chip-morado">📱 ${c.redes}</span>` : ''}
+        ${c.cantidad ? `<span class="chip chip-amarillo">📅 ${c.cantidad} pub/mes</span>` : ''}
+        ${c.presupuesto ? `<span class="chip chip-gris">💰 ${c.presupuesto}</span>` : ''}
+      </div>
+    </div>
+    <div class="cliente-header-actions">
+      <button class="btn-icon" title="Editar" onclick="abrirModalCliente('${c.id}')">✏️</button>
+    </div>
+  `;
+}
+
+// ─── RENDER PUBLICACIONES ───
+function renderPubs() {
+  const grid = document.getElementById('pub-grid');
+  let pubs = S.publicaciones;
+  if (S.filtroTipo !== 'todos') pubs = pubs.filter(p => p.tipo === S.filtroTipo);
+  if (!pubs.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1; color:var(--gris); text-align:center; padding:40px; font-size:0.9rem">
+      No hay publicaciones ${S.filtroTipo !== 'todos' ? 'de tipo ' + S.filtroTipo : 'aún'}. <br>
+      <button class="btn-primary" style="margin-top:12px" onclick="abrirModalPub()">+ Agregar</button>
+    </div>`;
+    return;
+  }
+  const sorted = [...pubs].sort((a,b) => (a.fecha||'').localeCompare(b.fecha||''));
+  grid.innerHTML = sorted.map(p => {
+    const tipoClass = `tipo-${p.tipo?.toLowerCase()}`;
+    const estadoClass = `estado-${ESTADOS[p.estado] || 'idea'}`;
+    const hashtags = p.hashtags ? p.hashtags.split(' ').slice(0,3).join(' ') : '';
+    return `
+    <div class="pub-card" onclick="editarPub('${p.id}')">
+      <div class="pub-card-top">
+        <span class="pub-tipo-badge ${tipoClass}">${tipoIcon(p.tipo)} ${p.tipo}</span>
+        <span class="pub-estado ${estadoClass}">${p.estado || 'Idea'}</span>
+      </div>
+      <div class="pub-titulo-card">${p.titulo}</div>
+      <div class="pub-caption">${p.caption || p.visual || 'Sin descripción'}</div>
+      <div class="pub-meta">
+        <div class="pub-meta-left">
+          <span class="pub-red">${p.red || '—'}</span>
+          ${p.tipo ? `<span class="pub-medida">${TIPOS[p.tipo]?.medida || ''}</span>` : ''}
+        </div>
+        <span>${p.fecha ? formatFecha(p.fecha) : 'Sin fecha'} ${p.hora ? '· ' + formatHora(p.hora) : ''}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function tipoIcon(tipo) {
+  return { Reel: '🎬', Post: '🖼️', Stories: '⭕', Carrusel: '📑' }[tipo] || '';
+}
+function formatFecha(f) {
+  const [y,m,d] = f.split('-');
+  const meses = ['','ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${parseInt(d)} ${meses[parseInt(m)]}`;
+}
+function formatHora(h) {
+  const map = { '10:00': '10am', '12:00': '12pm', '15:00': '3pm' };
+  return map[h] || h;
+}
+
+// ─── RENDER CALENDARIO ───
+function renderCalendario() {
+  const el = document.getElementById('tab-calendario');
+  const hoy = new Date();
+  const lunes = getLunes(hoy, S.semanaOffset);
+  const dias = ['L','M','M','J','V','S','D'];
+  const horas = ['10:00','12:00','15:00'];
+  const etiquetasHora = ['10 AM', '12 PM', '3 PM'];
+
+  // Calcular rango de la semana
+  const fechas = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    fechas.push(d);
+  }
+
+  const semanaLabel = `${formatFechaCorta(fechas[0])} — ${formatFechaCorta(fechas[6])} ${fechas[0].getFullYear()}`;
+
+  let html = `
+  <div class="cal-header">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navSemana(-1)">‹</button>
+      <span class="cal-semana-label">${semanaLabel}</span>
+      <button class="cal-nav-btn" onclick="navSemana(1)">›</button>
+      <button class="cal-nav-btn" onclick="navSemana(0)" title="Hoy">●</button>
+    </div>
+    <div class="cal-leyenda">
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#FF5C5C"></div>Reel</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#4A90D9"></div>Post</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#835FFD"></div>Stories</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#F5A623"></div>Carrusel</div>
+    </div>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-dias-header">
+      <div class="cal-dia-header"></div>
+      ${fechas.map((d, i) => {
+        const esHoy = mismoDia(d, hoy);
+        const num = d.getDate();
+        return `<div class="cal-dia-header ${esHoy ? 'hoy' : ''}">
+          <span class="cal-dia-fecha">${esHoy ? `<span style="display:flex;align-items:center;justify-content:center;background:var(--morado);color:white;width:28px;height:28px;border-radius:50%;margin:0 auto 2px">${num}</span>` : num}</span>
+          ${dias[i]}
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  horas.forEach((hora, hi) => {
+    html += `<div class="cal-fila">
+      <div class="cal-hora-label">${etiquetasHora[hi]}</div>
+      ${fechas.map(d => {
+        const fechaStr = toDateStr(d);
+        const pubs = S.publicaciones.filter(p => p.fecha === fechaStr && p.hora === hora);
+        const esHoy = mismoDia(d, hoy);
+        return `<div class="cal-celda ${esHoy ? 'hoy' : ''}">
+          ${pubs.map(p => `
+            <div class="cal-pub cal-pub-${p.tipo?.toLowerCase()}" onclick="editarPub('${p.id}')" title="${p.titulo}">
+              ${tipoIcon(p.tipo)} ${p.titulo.length > 18 ? p.titulo.slice(0,18)+'…' : p.titulo}
+            </div>`).join('')}
+        </div>`;
+      }).join('')}
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function getLunes(fecha, offset) {
+  const d = new Date(fecha);
+  const dia = d.getDay();
+  const diff = dia === 0 ? -6 : 1 - dia;
+  d.setDate(d.getDate() + diff + offset * 7);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function mismoDia(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatFechaCorta(d) {
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d.getDate()} ${meses[d.getMonth()]}`;
+}
+
+window.navSemana = function(dir) {
+  if (dir === 0) S.semanaOffset = 0;
+  else S.semanaOffset += dir;
+  renderCalendario();
+};
+
+// ─── TABS ───
+window.cambiarTab = function(tab, btn) {
+  S.tabActiva = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('tab-gestion').style.display = tab === 'gestion' ? 'block' : 'none';
+  document.getElementById('tab-calendario').style.display = tab === 'calendario' ? 'block' : 'none';
+  if (tab === 'calendario') renderCalendario();
+};
+
+window.filtrarTipo = function(tipo, btn) {
+  S.filtroTipo = tipo;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPubs();
+};
+
+// ─── MODAL CLIENTE ───
+window.abrirModalCliente = function(id) {
+  S.editandoClienteId = id || null;
+  S.avatarBase64 = null;
+  limpiarFormCliente();
+
+  if (id) {
+    const c = S.clientes.find(x => x.id === id);
+    document.getElementById('modal-cliente-titulo').textContent = 'Editar cliente';
+    document.getElementById('btn-eliminar-cliente').style.display = 'flex';
+    document.getElementById('form-nombre').value = c.nombre || '';
+    document.getElementById('form-bio').value = c.bio || '';
+    document.getElementById('form-cantidad').value = c.cantidad || '';
+    document.getElementById('form-presupuesto').value = c.presupuesto || '';
+    document.getElementById('form-redes').value = c.redes || '';
+    document.getElementById('form-passwords').value = c.passwords || '';
+    S.colorSeleccionado = c.color || '#835FFD';
+    S.avatarBase64 = c.avatar || null;
+    actualizarColorUI();
+    if (c.avatar) {
+      const prev = document.getElementById('form-avatar-preview');
+      prev.innerHTML = `<img src="${c.avatar}" alt="">`;
+    }
+  } else {
+    document.getElementById('modal-cliente-titulo').textContent = 'Nuevo cliente';
+    document.getElementById('btn-eliminar-cliente').style.display = 'none';
+    S.colorSeleccionado = '#835FFD';
+    actualizarColorUI();
+  }
+  document.getElementById('modal-cliente').classList.add('open');
+};
+
+function limpiarFormCliente() {
+  ['form-nombre','form-bio','form-cantidad','form-presupuesto','form-redes','form-passwords'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  const prev = document.getElementById('form-avatar-preview');
+  prev.innerHTML = 'N';
+  prev.style.background = '#835FFD';
+}
+
+window.guardarCliente = async function() {
+  const nombre = document.getElementById('form-nombre').value.trim();
+  if (!nombre) { toast('El nombre es obligatorio', 'error'); return; }
+  const data = {
+    nombre,
+    bio: document.getElementById('form-bio').value.trim(),
+    cantidad: document.getElementById('form-cantidad').value,
+    presupuesto: document.getElementById('form-presupuesto').value.trim(),
+    redes: document.getElementById('form-redes').value.trim(),
+    passwords: document.getElementById('form-passwords').value,
+    color: S.colorSeleccionado,
+    avatar: S.avatarBase64 || null,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    if (S.editandoClienteId) {
+      await updateDoc(doc(db, 'clientes', S.editandoClienteId), data);
+      toast('Cliente actualizado ✓', 'success');
+    } else {
+      data.createdAt = new Date().toISOString();
+      await addDoc(collection(db, 'clientes'), data);
+      toast('Cliente creado ✓', 'success');
+    }
+    cerrarModal('modal-cliente');
+    await cargarClientes();
+    if (S.clienteActivo && S.editandoClienteId === S.clienteActivo.id) {
+      S.clienteActivo = S.clientes.find(c => c.id === S.editandoClienteId);
+      renderClienteHeader();
+    }
+  } catch(e) { toast('Error al guardar', 'error'); console.error(e); }
+};
+
+window.eliminarCliente = async function() {
+  if (!confirm('¿Eliminar este cliente? También se eliminarán sus publicaciones.')) return;
+  try {
+    await deleteDoc(doc(db, 'clientes', S.editandoClienteId));
+    // Eliminar publicaciones del cliente
+    const q = query(collection(db, 'publicaciones'), where('clienteId', '==', S.editandoClienteId));
+    const snap = await getDocs(q);
+    for (const d of snap.docs) await deleteDoc(d.ref);
+    cerrarModal('modal-cliente');
+    S.clienteActivo = null;
+    S.publicaciones = [];
+    document.getElementById('panel-principal').style.display = 'block';
+    document.getElementById('panel-cliente').style.display = 'none';
+    document.getElementById('nav-pub-btn').style.display = 'none';
+    await cargarClientes();
+    toast('Cliente eliminado', 'success');
+  } catch(e) { toast('Error al eliminar', 'error'); }
+};
+
+// ─── MODAL PUBLICACIÓN ───
+window.abrirModalPub = function() {
+  if (!S.clienteActivo) { toast('Selecciona un cliente primero', 'error'); return; }
+  S.editandoPubId = null;
+  S.tipoSeleccionado = null;
+  S.estadoSeleccionado = 'Idea';
+  limpiarFormPub();
+  document.getElementById('modal-pub-titulo').textContent = 'Nueva publicación';
+  document.getElementById('btn-eliminar-pub').style.display = 'none';
+  // Fecha de hoy por defecto
+  const hoy = new Date();
+  document.getElementById('pub-fecha').value = toDateStr(hoy);
+  document.getElementById('modal-pub').classList.add('open');
+};
+
+window.editarPub = function(id) {
+  const p = S.publicaciones.find(x => x.id === id);
+  if (!p) return;
+  S.editandoPubId = id;
+  S.tipoSeleccionado = p.tipo;
+  S.estadoSeleccionado = p.estado || 'Idea';
+  limpiarFormPub();
+  document.getElementById('modal-pub-titulo').textContent = 'Editar publicación';
+  document.getElementById('btn-eliminar-pub').style.display = 'flex';
+  document.getElementById('pub-titulo').value = p.titulo || '';
+  document.getElementById('pub-red').value = p.red || '';
+  document.getElementById('pub-fecha').value = p.fecha || '';
+  document.getElementById('pub-hora').value = p.hora || '10:00';
+  document.getElementById('pub-visual').value = p.visual || '';
+  document.getElementById('pub-textos').value = p.textos || '';
+  document.getElementById('pub-caption').value = p.caption || '';
+  document.getElementById('pub-hashtags').value = p.hashtags || '';
+  // Tipo
+  document.querySelectorAll('.tipo-option').forEach(el => {
+    el.className = 'tipo-option';
+    if (el.dataset.tipo === p.tipo) el.classList.add(`selected-${p.tipo.toLowerCase()}`);
+  });
+  actualizarAutoBadge(p.tipo);
+  // Estado
+  document.querySelectorAll('.estado-option').forEach(el => {
+    el.className = 'estado-option';
+    if (el.dataset.estado === p.estado) el.classList.add(`sel-${ESTADOS[p.estado] || 'idea'}`);
+  });
+  document.getElementById('modal-pub').classList.add('open');
+};
+
+function limpiarFormPub() {
+  ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('pub-red').value = '';
+  document.getElementById('pub-hora').value = '10:00';
+  document.querySelectorAll('.tipo-option').forEach(el => el.className = 'tipo-option');
+  document.querySelectorAll('.estado-option').forEach(el => {
+    el.className = 'estado-option';
+    if (el.dataset.estado === 'Idea') el.classList.add('sel-idea');
+  });
+  document.getElementById('auto-format-badge').style.display = 'none';
+}
+
+window.guardarPub = async function() {
+  const titulo = document.getElementById('pub-titulo').value.trim();
+  if (!titulo) { toast('El título es obligatorio', 'error'); return; }
+  if (!S.tipoSeleccionado) { toast('Selecciona el tipo de publicación', 'error'); return; }
+  const data = {
+    clienteId: S.clienteActivo.id,
+    tipo: S.tipoSeleccionado,
+    titulo,
+    red: document.getElementById('pub-red').value,
+    fecha: document.getElementById('pub-fecha').value,
+    hora: document.getElementById('pub-hora').value,
+    estado: S.estadoSeleccionado,
+    visual: document.getElementById('pub-visual').value.trim(),
+    textos: document.getElementById('pub-textos').value.trim(),
+    caption: document.getElementById('pub-caption').value.trim(),
+    hashtags: document.getElementById('pub-hashtags').value.trim(),
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    if (S.editandoPubId) {
+      await updateDoc(doc(db, 'publicaciones', S.editandoPubId), data);
+      toast('Publicación actualizada ✓', 'success');
+    } else {
+      data.createdAt = new Date().toISOString();
+      await addDoc(collection(db, 'publicaciones'), data);
+      toast('Publicación creada ✓', 'success');
+    }
+    cerrarModal('modal-pub');
+    await cargarPublicaciones(S.clienteActivo.id);
+  } catch(e) { toast('Error al guardar', 'error'); console.error(e); }
+};
+
+window.eliminarPub = async function() {
+  if (!confirm('¿Eliminar esta publicación?')) return;
+  try {
+    await deleteDoc(doc(db, 'publicaciones', S.editandoPubId));
+    cerrarModal('modal-pub');
+    await cargarPublicaciones(S.clienteActivo.id);
+    toast('Publicación eliminada', 'success');
+  } catch(e) { toast('Error al eliminar', 'error'); }
+};
+
+// ─── TIPO SELECTOR ───
+window.selTipo = function(el) {
+  const tipo = el.dataset.tipo;
+  S.tipoSeleccionado = tipo;
+  document.querySelectorAll('.tipo-option').forEach(o => o.className = 'tipo-option');
+  el.classList.add(`selected-${tipo.toLowerCase()}`);
+  actualizarAutoBadge(tipo);
+};
+
+function actualizarAutoBadge(tipo) {
+  const badge = document.getElementById('auto-format-badge');
+  if (!tipo || !TIPOS[tipo]) { badge.style.display = 'none'; return; }
+  const t = TIPOS[tipo];
+  document.getElementById('auto-color').style.background = t.color;
+  document.getElementById('auto-medida').textContent = t.medida;
+  document.getElementById('auto-label').textContent = t.label;
+  badge.style.display = 'flex';
+}
+
+// ─── ESTADO SELECTOR ───
+window.selEstado = function(el) {
+  S.estadoSeleccionado = el.dataset.estado;
+  document.querySelectorAll('.estado-option').forEach(o => o.className = 'estado-option');
+  el.classList.add(`sel-${ESTADOS[S.estadoSeleccionado] || 'idea'}`);
+};
+
+// ─── COLOR SELECTOR ───
+window.selColor = function(el) {
+  S.colorSeleccionado = el.dataset.color;
+  actualizarColorUI();
+};
+function actualizarColorUI() {
+  document.querySelectorAll('.color-opt').forEach(o => {
+    o.classList.toggle('selected', o.dataset.color === S.colorSeleccionado);
+  });
+  const prev = document.getElementById('form-avatar-preview');
+  if (!S.avatarBase64) prev.style.background = S.colorSeleccionado;
+}
+
+// ─── AVATAR UPLOAD ───
+window.handleAvatarUpload = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    S.avatarBase64 = ev.target.result;
+    const prev = document.getElementById('form-avatar-preview');
+    prev.innerHTML = `<img src="${S.avatarBase64}" alt="">`;
+  };
+  reader.readAsDataURL(file);
+};
+
+// ─── PASSWORD TOGGLE ───
+window.togglePassword = function() {
+  const inp = document.getElementById('form-passwords');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+};
+
+// ─── MODAL HELPERS ───
+window.cerrarModal = function(id) {
+  document.getElementById(id).classList.remove('open');
+};
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ─── MOBILE SIDEBAR ───
+window.mostrarSidebarMobile = function() {
+  // En mobile, mostrar/ocultar sidebar temporalmente
+  const sb = document.getElementById('sidebar');
+  sb.style.display = sb.style.display === 'block' ? 'none' : 'block';
+};
+
+// ─── TOAST ───
+function toast(msg, tipo = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${tipo}`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  cargarClientes();
+});
+
+// Cerrar con ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+</script>
+</body>
+</html>
