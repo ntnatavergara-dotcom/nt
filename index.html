@@ -767,6 +767,10 @@
   input[type="date"].form-input {
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
   }
   .form-input, .form-select, .form-textarea {
     width: 100%;
@@ -1003,11 +1007,16 @@
     .content-area { padding: 16px; }
     /* cliente-header manejado por breakpoint 600px */
     .form-row { grid-template-columns: 1fr; }
-    .form-input[type="date"] {
+    .fecha-hora-row {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    .fecha-hora-row .form-input,
+    .fecha-hora-row .form-select {
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      padding: 10px 8px;
     }
     .modal { max-width: 100%; overflow-x: hidden; }
     .modal-body { overflow-x: hidden; }
