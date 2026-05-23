@@ -1026,6 +1026,68 @@
     font-size: 0.8rem; color: var(--gris);
   }
 
+  /* ─── HISTORIAL ─── */
+  .hist-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .hist-nav {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .hist-resumen {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 16px 20px;
+    box-shadow: var(--sombra);
+    margin-bottom: 20px;
+  }
+  .hist-resumen-item {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 56px;
+  }
+  .hist-resumen-num {
+    font-size: 1.6rem; font-weight: 800; line-height: 1;
+    color: var(--negro);
+  }
+  .hist-resumen-label {
+    font-size: 0.7rem; font-weight: 600; color: var(--gris);
+    margin-top: 2px; text-align: center;
+  }
+  .hist-lista { display: flex; flex-direction: column; gap: 20px; }
+  .hist-fecha-grupo { display: flex; flex-direction: column; gap: 8px; }
+  .hist-fecha-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.82rem; font-weight: 700; color: var(--negro);
+    margin-bottom: 4px;
+  }
+  .hist-pub-card {
+    background: var(--blanco);
+    border-radius: var(--radio-sm);
+    padding: 12px 16px;
+    box-shadow: var(--sombra);
+    display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer; transition: all 0.15s;
+    border: 2px solid transparent;
+  }
+  .hist-pub-card:hover { border-color: var(--morado); transform: translateY(-1px); }
+  .hist-pub-left { flex-shrink: 0; }
+  .hist-pub-info { flex: 1; min-width: 0; }
+  .hist-pub-titulo {
+    font-weight: 700; font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .hist-pub-meta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 0.75rem; color: var(--gris); font-weight: 600;
+  }
+  .hist-link {
+    display: inline-flex; align-items: center; gap: 3px;
+    color: var(--morado); text-decoration: none; font-weight: 700;
+  }
+  .hist-link:hover { text-decoration: underline; }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1452,6 +1514,7 @@
       <div class="tabs">
         <button class="tab active" onclick="cambiarTab('gestion', this)">Gestión</button>
         <button class="tab" onclick="cambiarTab('calendario', this)">Calendario</button>
+        <button class="tab" onclick="cambiarTab('historial', this)">Historial</button>
       </div>
       <!-- Panels -->
       <div id="tab-gestion">
@@ -1471,6 +1534,7 @@
         <div class="pub-grid" id="pub-grid"></div>
       </div>
       <div id="tab-calendario" style="display:none"></div>
+      <div id="tab-historial" style="display:none"></div>
     </div>
   </main>
 </div>
@@ -2050,6 +2114,136 @@ window.addEventListener('resize', () => {
   if (S.tabActiva === 'calendario') renderCalendario();
 });
 
+// ─── HISTORIAL ───
+window._historialMes = null;
+
+function renderHistorial() {
+  const el = document.getElementById('tab-historial');
+  const hoy = new Date();
+
+  // Mes activo por defecto: mes actual
+  if (window._historialMes === null) {
+    window._historialMes = { año: hoy.getFullYear(), mes: hoy.getMonth() };
+  }
+
+  const { año, mes } = window._historialMes;
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesLabel = `${meses[mes]} ${año}`;
+
+  // Filtrar publicaciones del mes seleccionado con estado Publicado
+  const pubsMes = S.publicaciones.filter(p => {
+    if (!p.fecha) return false;
+    const [y, m] = p.fecha.split('-').map(Number);
+    return y === año && m === mes + 1 && p.estado === 'Publicado';
+  }).sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+
+  // Todas las publicaciones del mes (cualquier estado) para el resumen
+  const todasMes = S.publicaciones.filter(p => {
+    if (!p.fecha) return false;
+    const [y, m] = p.fecha.split('-').map(Number);
+    return y === año && m === mes + 1;
+  });
+
+  const conteo = { Reel: 0, Post: 0, Stories: 0, Carrusel: 0 };
+  pubsMes.forEach(p => { if (conteo[p.tipo] !== undefined) conteo[p.tipo]++; });
+
+  let html = `
+  <div class="hist-header">
+    <div class="hist-nav">
+      <button class="cal-nav-btn" onclick="navHistorial(-1)"><span class="material-symbols-rounded">chevron_left</span></button>
+      <span class="cal-semana-label">${mesLabel}</span>
+      <button class="cal-nav-btn" onclick="navHistorial(1)"><span class="material-symbols-rounded">chevron_right</span></button>
+      <button class="cal-nav-btn" onclick="navHistorial(0)" title="Mes actual"><span class="material-symbols-rounded">radio_button_checked</span></button>
+    </div>
+  </div>
+
+  <!-- Resumen del mes -->
+  <div class="hist-resumen">
+    <div class="hist-resumen-item">
+      <span class="hist-resumen-num">${pubsMes.length}</span>
+      <span class="hist-resumen-label">Publicadas</span>
+    </div>
+    <div class="hist-resumen-item">
+      <span class="hist-resumen-num">${todasMes.length}</span>
+      <span class="hist-resumen-label">Total mes</span>
+    </div>
+    ${Object.entries(conteo).filter(([,v]) => v > 0).map(([tipo, n]) => `
+    <div class="hist-resumen-item">
+      <span class="hist-resumen-num" style="color:${tipoColor(tipo)}">${n}</span>
+      <span class="hist-resumen-label">${tipo}</span>
+    </div>`).join('')}
+  </div>`;
+
+  if (!pubsMes.length) {
+    html += `<div class="panel-vacio" style="padding:40px 20px">
+      <div class="panel-vacio-icono"><span class="material-symbols-rounded" style="font-size:2.5rem;color:var(--gris)">history</span></div>
+      <h3>Sin publicaciones</h3>
+      <p>No hay publicaciones con estado "Publicado" en ${mesLabel}.</p>
+    </div>`;
+  } else {
+    // Agrupar por fecha
+    const porFecha = {};
+    pubsMes.forEach(p => {
+      if (!porFecha[p.fecha]) porFecha[p.fecha] = [];
+      porFecha[p.fecha].push(p);
+    });
+
+    html += '<div class="hist-lista">';
+    Object.entries(porFecha).forEach(([fecha, pubs]) => {
+      html += `
+      <div class="hist-fecha-grupo">
+        <div class="hist-fecha-label">
+          <span class="material-symbols-rounded" style="font-size:16px;color:var(--morado)">calendar_today</span>
+          ${formatFechaLarga(fecha)}
+        </div>
+        ${pubs.map(p => `
+        <div class="hist-pub-card" onclick="editarPub('${p.id}')">
+          <div class="hist-pub-left">
+            <span class="pub-tipo-badge tipo-${p.tipo?.toLowerCase()}">${tipoIcon(p.tipo)} ${p.tipo}</span>
+          </div>
+          <div class="hist-pub-info">
+            <div class="hist-pub-titulo">${p.titulo}</div>
+            <div class="hist-pub-meta">
+              ${p.red ? `<span>${p.red}</span>` : ''}
+              ${p.hora ? `<span>· ${formatHora(p.hora)}</span>` : ''}
+              ${p.diseno ? `<a href="${p.diseno}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="hist-link"><span class="material-symbols-rounded" style="font-size:13px">open_in_new</span> Ver diseño</a>` : ''}
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+function tipoColor(tipo) {
+  return { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' }[tipo] || 'var(--negro)';
+}
+
+function formatFechaLarga(f) {
+  const [y, m, d] = f.split('-').map(Number);
+  const dias = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fecha = new Date(y, m - 1, d);
+  return `${dias[fecha.getDay()]} ${d} de ${meses[m - 1]}`;
+}
+
+window.navHistorial = function(dir) {
+  if (dir === 0) {
+    const hoy = new Date();
+    window._historialMes = { año: hoy.getFullYear(), mes: hoy.getMonth() };
+  } else {
+    let { año, mes } = window._historialMes;
+    mes += dir;
+    if (mes < 0) { mes = 11; año--; }
+    if (mes > 11) { mes = 0; año++; }
+    window._historialMes = { año, mes };
+  }
+  renderHistorial();
+};
+
 // ─── TABS ───
 window.cambiarTab = function(tab, btn) {
   S.tabActiva = tab;
@@ -2057,7 +2251,9 @@ window.cambiarTab = function(tab, btn) {
   if (btn) btn.classList.add('active');
   document.getElementById('tab-gestion').style.display = tab === 'gestion' ? 'block' : 'none';
   document.getElementById('tab-calendario').style.display = tab === 'calendario' ? 'block' : 'none';
+  document.getElementById('tab-historial').style.display = tab === 'historial' ? 'block' : 'none';
   if (tab === 'calendario') renderCalendario();
+  if (tab === 'historial') renderHistorial();
 };
 
 window.filtrarTipo = function(tipo, btn) {
