@@ -1403,6 +1403,23 @@
     }
   }
 
+  /* ─── BOTÓN REGRESAR ─── */
+  .btn-regresar {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none;
+    border: none;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.82rem; font-weight: 700;
+    color: var(--gris);
+    cursor: pointer;
+    padding: 6px 0;
+    margin-bottom: 12px;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-regresar:hover { color: var(--morado); }
+  .btn-regresar .material-symbols-rounded { font-size: 18px; }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1878,6 +1895,11 @@
       </div>
     </div>
     <div id="panel-cliente" style="display:none">
+      <!-- Botón regresar -->
+      <button onclick="volverDashboard()" class="btn-regresar">
+        <span class="material-symbols-rounded">arrow_back</span>
+        Dashboard
+      </button>
       <!-- Header cliente -->
       <div class="cliente-header" id="cliente-header-el"></div>
       <!-- Próximas mobile -->
@@ -2227,6 +2249,17 @@ function iniciales(nombre) {
 }
 
 // ─── SELECCIONAR CLIENTE ───
+window.volverDashboard = function() {
+  S.clienteActivo = null;
+  S.publicaciones = [];
+  document.getElementById('panel-cliente').style.display = 'none';
+  document.getElementById('panel-principal').style.display = 'block';
+  document.getElementById('nav-pub-btn').style.display = 'none';
+  document.getElementById('panel-derecho').style.display = 'none';
+  renderSidebar();
+  renderDashboard();
+};
+
 window.seleccionarCliente = async function(id) {
   S.clienteActivo = S.clientes.find(c => c.id === id);
   S.filtroTipo = 'todos';
