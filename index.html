@@ -137,6 +137,28 @@
     font-size: 0.7rem;
     font-weight: 700;
   }
+
+  /* ─── PUNTO DE ESTADO CLIENTE ─── */
+  .cliente-estado-row {
+    display: flex; align-items: center; gap: 5px; margin-top: 3px;
+  }
+  .cliente-estado-dot {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  }
+  .cliente-estado-dot.activo { background: #22c55e; box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
+  .cliente-estado-dot.inactivo { background: #c4c4c4; }
+  .cliente-estado-label {
+    font-size: 0.72rem; font-weight: 600;
+  }
+  .cliente-estado-label.activo { color: #16a34a; }
+  .cliente-estado-label.inactivo { color: #a0a0a0; }
+  .sidebar-toggle-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 0.85rem; padding: 4px; border-radius: 6px;
+    flex-shrink: 0; line-height: 1;
+    transition: background 0.15s;
+  }
+  .sidebar-toggle-btn:hover { background: var(--crema-oscuro); }
   .sidebar-empty {
     padding: 20px;
     text-align: center;
@@ -1142,18 +1164,26 @@ function renderSidebar() {
     return;
   }
   el.innerHTML = S.clientes.map(c => {
-    const pubs = S.clienteActivo?.id === c.id ? S.publicaciones.length : '—';
     const isActive = S.clienteActivo?.id === c.id;
+    const estaActivo = c.activo !== false;
     const avatarHtml = c.avatar
       ? `<img src="${c.avatar}" alt="">`
       : iniciales(c.nombre);
     return `
-    <div class="cliente-item ${isActive ? 'active' : ''}" onclick="seleccionarCliente('${c.id}')">
-      <div class="cliente-avatar" style="background:${c.color || '#835FFD'}">${avatarHtml}</div>
-      <div class="cliente-info">
+    <div class="cliente-item ${isActive ? 'active' : ''}" style="${!estaActivo ? 'opacity:0.5' : ''}">
+      <div class="cliente-avatar" style="background:${c.color || '#835FFD'};cursor:pointer" onclick="seleccionarCliente('${c.id}')">${avatarHtml}</div>
+      <div class="cliente-info" style="cursor:pointer" onclick="seleccionarCliente('${c.id}')">
         <div class="cliente-nombre">${c.nombre}</div>
-        <div class="cliente-redes">${c.redes || 'Sin redes'}</div>
+        <div class="cliente-estado-row">
+          <div class="cliente-estado-dot ${estaActivo ? 'activo' : 'inactivo'}"></div>
+          <span class="cliente-estado-label ${estaActivo ? 'activo' : 'inactivo'}">${estaActivo ? 'Activo' : 'Inactivo'}</span>
+        </div>
       </div>
+      <button class="sidebar-toggle-btn ${estaActivo ? 'desactivar' : 'activar'}"
+        onclick="confirmarEliminarCliente('${c.id}')"
+        title="${estaActivo ? 'Desactivar' : 'Activar'}">
+        ${estaActivo ? '🔴' : '🟢'}
+      </button>
     </div>`;
   }).join('');
 }
@@ -1195,7 +1225,6 @@ function renderClienteHeader() {
     </div>
     <div class="cliente-header-actions">
       <button class="btn-icon" title="Editar" onclick="abrirModalCliente('${c.id}')">✏️</button>
-      <button class="btn-icon" title="Eliminar cliente" style="color:var(--rojo-coral)" onclick="confirmarEliminarCliente('${c.id}')">🗑️</button>
     </div>
   `;
 }
@@ -1434,20 +1463,21 @@ window.guardarCliente = async function() {
 };
 
 window.confirmarEliminarCliente = async function(id) {
-  if (!confirm('¿Eliminar este cliente? También se eliminarán sus publicaciones.')) return;
+  const cliente = S.clientes.find(c => c.id === id);
+  const estaActivo = cliente?.activo !== false;
+  const accion = estaActivo ? 'desactivar' : 'activar';
+  const nuevoEstado = !estaActivo;
+  if (!confirm(`¿${accion.charAt(0).toUpperCase() + accion.slice(1)} este cliente?`)) return;
   try {
-    await deleteDoc(doc(db, 'clientes', id));
-    const q = query(collection(db, 'publicaciones'), where('clienteId', '==', id));
-    const snap = await getDocs(q);
-    for (const d of snap.docs) await deleteDoc(d.ref);
-    S.clienteActivo = null;
-    S.publicaciones = [];
-    document.getElementById('panel-principal').style.display = 'block';
-    document.getElementById('panel-cliente').style.display = 'none';
-    document.getElementById('nav-pub-btn').style.display = 'none';
+    await updateDoc(doc(db, 'clientes', id), { activo: nuevoEstado });
     await cargarClientes();
-    toast('Cliente eliminado', 'success');
-  } catch(e) { toast('Error al eliminar', 'error'); }
+    // Si el cliente activo fue desactivado, actualizar su header
+    if (S.clienteActivo?.id === id) {
+      S.clienteActivo = S.clientes.find(c => c.id === id);
+      renderClienteHeader();
+    }
+    toast(`Cliente ${nuevoEstado ? 'activado' : 'desactivado'} ✓`, 'success');
+  } catch(e) { toast('Error al actualizar', 'error'); }
 };
 
 window.eliminarCliente = async function() {
