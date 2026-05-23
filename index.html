@@ -192,17 +192,17 @@
 
   /* Botón eliminar real (solo visible cuando inactivo) */
   .btn-eliminar-real {
-    display: flex; align-items: center; gap: 6px;
-    margin: 8px 20px 0;
-    padding: 8px 14px;
+    display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+    padding: 6px 10px;
     background: rgba(255,92,92,0.08);
     color: var(--rojo-coral);
     border: 1.5px solid rgba(255,92,92,0.25);
     border-radius: var(--radio-xs);
     font-family: 'Karla', sans-serif;
     font-size: 0.78rem; font-weight: 700;
-    cursor: pointer; width: calc(100% - 40px);
+    cursor: pointer;
     transition: all 0.15s;
+    align-self: flex-end;
   }
   .btn-eliminar-real:hover { background: rgba(255,92,92,0.18); border-color: var(--rojo-coral); }
   .sidebar-empty {
