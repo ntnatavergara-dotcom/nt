@@ -943,6 +943,83 @@
   }
   .color-opt-custom input { opacity: 0; position: absolute; }
 
+  /* ─── AGENDA MOBILE ─── */
+  .agenda-wrap {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .agenda-dia {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    overflow: hidden;
+    box-shadow: var(--sombra);
+  }
+  .agenda-dia-hoy { border: 2px solid var(--morado); }
+  .agenda-dia-vacio { opacity: 0.6; }
+  .agenda-dia-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--crema-oscuro);
+    background: var(--crema);
+  }
+  .agenda-dia-numero {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.95rem;
+    background: var(--crema-oscuro);
+    flex-shrink: 0;
+  }
+  .agenda-dia-numero.hoy {
+    background: var(--morado); color: white;
+  }
+  .agenda-dia-nombre {
+    font-weight: 700; font-size: 0.9rem; flex: 1;
+  }
+  .agenda-dia-count {
+    background: var(--morado);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .agenda-pubs { padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .agenda-hora-bloque { display: flex; gap: 10px; align-items: flex-start; }
+  .agenda-hora-label {
+    font-size: 0.7rem; font-weight: 700; color: var(--gris);
+    width: 36px; flex-shrink: 0; padding-top: 6px;
+  }
+  .agenda-hora-pubs { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .agenda-pub {
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: filter 0.15s;
+    border-left-width: 3px;
+    border-left-style: solid;
+  }
+  .agenda-pub:active { filter: brightness(0.92); }
+  .agenda-pub-top {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+  }
+  .agenda-pub-tipo {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; flex: 1;
+  }
+  .agenda-pub-estado {
+    font-size: 0.68rem; font-weight: 600;
+    padding: 1px 6px; border-radius: 20px;
+  }
+  .estado-idea { background: rgba(138,138,138,0.15); color: var(--gris); }
+  .estado-produccion { background: rgba(245,255,0,0.2); color: #7a6a00; }
+  .estado-listo { background: rgba(34,197,94,0.15); color: #166534; }
+  .estado-publicado { background: rgba(131,95,253,0.15); color: var(--morado); }
+  .agenda-pub-titulo { font-weight: 600; font-size: 0.85rem; }
+  .agenda-pub-red { font-size: 0.75rem; color: var(--gris); margin-top: 2px; }
+  .agenda-sin-pubs {
+    padding: 10px 14px;
+    font-size: 0.8rem; color: var(--gris);
+  }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1773,7 +1850,89 @@ function formatHora(h) {
 }
 
 // ─── RENDER CALENDARIO ───
+function isMobile() {
+  return window.innerWidth <= 900;
+}
+
 function renderCalendario() {
+  if (isMobile()) {
+    renderCalendarioAgenda();
+  } else {
+    renderCalendarioSemana();
+  }
+}
+
+function renderCalendarioAgenda() {
+  const el = document.getElementById('tab-calendario');
+  const hoy = new Date();
+  const lunes = getLunes(hoy, S.semanaOffset);
+  const diasNombre = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const horas = ['10:00','12:00','15:00'];
+  const etiquetasHora = { '10:00': '10 AM', '12:00': '12 PM', '15:00': '3 PM' };
+
+  const fechas = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(lunes);
+    d.setDate(lunes.getDate() + i);
+    fechas.push(d);
+  }
+
+  const semanaLabel = `${formatFechaCorta(fechas[0])} — ${formatFechaCorta(fechas[6])} ${fechas[0].getFullYear()}`;
+
+  let html = `
+  <div class="cal-header">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navSemana(-1)"><span class="material-symbols-rounded">chevron_left</span></button>
+      <span class="cal-semana-label">${semanaLabel}</span>
+      <button class="cal-nav-btn" onclick="navSemana(1)"><span class="material-symbols-rounded">chevron_right</span></button>
+      <button class="cal-nav-btn" onclick="navSemana(0)" title="Hoy"><span class="material-symbols-rounded">radio_button_checked</span></button>
+    </div>
+  </div>
+  <div class="agenda-wrap">`;
+
+  fechas.forEach((d, i) => {
+    const fechaStr = toDateStr(d);
+    const esHoy = mismoDia(d, hoy);
+    const pubsDia = S.publicaciones.filter(p => p.fecha === fechaStr);
+
+    html += `
+    <div class="agenda-dia ${esHoy ? 'agenda-dia-hoy' : ''} ${pubsDia.length === 0 ? 'agenda-dia-vacio' : ''}">
+      <div class="agenda-dia-header">
+        <div class="agenda-dia-numero ${esHoy ? 'hoy' : ''}">${d.getDate()}</div>
+        <div class="agenda-dia-nombre">${diasNombre[i]}</div>
+        ${pubsDia.length > 0 ? `<span class="agenda-dia-count">${pubsDia.length} pub${pubsDia.length > 1 ? 's' : ''}</span>` : ''}
+      </div>
+      ${pubsDia.length > 0 ? `
+      <div class="agenda-pubs">
+        ${horas.map(hora => {
+          const pubs = pubsDia.filter(p => p.hora === hora);
+          if (!pubs.length) return '';
+          return `
+          <div class="agenda-hora-bloque">
+            <span class="agenda-hora-label">${etiquetasHora[hora]}</span>
+            <div class="agenda-hora-pubs">
+              ${pubs.map(p => `
+              <div class="agenda-pub cal-pub-${p.tipo?.toLowerCase()}" onclick="editarPub('${p.id}')">
+                <div class="agenda-pub-top">
+                  ${tipoIcon(p.tipo)}
+                  <span class="agenda-pub-tipo">${p.tipo}</span>
+                  <span class="agenda-pub-estado estado-${p.estado?.toLowerCase().replace('ó','o') || 'idea'}">${p.estado || 'Idea'}</span>
+                </div>
+                <div class="agenda-pub-titulo">${p.titulo}</div>
+                ${p.red ? `<div class="agenda-pub-red">${p.red}</div>` : ''}
+              </div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>` : `<div class="agenda-sin-pubs">Sin publicaciones</div>`}
+    </div>`;
+  });
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderCalendarioSemana() {
   const el = document.getElementById('tab-calendario');
   const hoy = new Date();
   const lunes = getLunes(hoy, S.semanaOffset);
@@ -1781,7 +1940,6 @@ function renderCalendario() {
   const horas = ['10:00','12:00','15:00'];
   const etiquetasHora = ['10 AM', '12 PM', '3 PM'];
 
-  // Calcular rango de la semana
   const fechas = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(lunes);
@@ -1865,6 +2023,10 @@ window.navSemana = function(dir) {
   else S.semanaOffset += dir;
   renderCalendario();
 };
+
+window.addEventListener('resize', () => {
+  if (S.tabActiva === 'calendario') renderCalendario();
+});
 
 // ─── TABS ───
 window.cambiarTab = function(tab, btn) {
