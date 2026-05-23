@@ -647,8 +647,8 @@
     background: var(--crema-oscuro);
   }
   .btn-add-pub {
-    background: var(--amarillo);
-    color: var(--negro);
+    background: var(--morado);
+    color: white;
     border: none;
     border-radius: var(--radio-xs);
     padding: 9px 18px;
@@ -659,7 +659,7 @@
     transition: all 0.2s;
     display: flex; align-items: center; gap: 6px;
   }
-  .btn-add-pub:hover { transform: translateY(-1px); box-shadow: var(--sombra-hover); }
+  .btn-add-pub:hover { background: #6a48e0; transform: translateY(-1px); box-shadow: var(--sombra-hover); }
 
   .pub-grid {
     display: grid;
@@ -704,14 +704,20 @@
   .pub-estado {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
   }
   .pub-estado::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
   }
+  .estado-idea { background: rgba(138,138,138,0.12); color: var(--gris); }
   .estado-idea::before { background: var(--gris); }
-  .estado-produccion::before { background: var(--amarillo); filter: brightness(0.7); }
+  .estado-produccion { background: rgba(245,255,0,0.2); color: #7a6a00; }
+  .estado-produccion::before { background: #b8a000; }
+  .estado-listo { background: rgba(34,197,94,0.12); color: #166534; }
   .estado-listo::before { background: #22c55e; }
+  .estado-publicado { background: rgba(131,95,253,0.12); color: var(--morado); }
   .estado-publicado::before { background: var(--morado); }
 
   .pub-titulo-card {
