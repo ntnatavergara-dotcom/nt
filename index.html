@@ -79,6 +79,12 @@
     transition: all 0.2s;
     display: flex; align-items: center; gap: 6px;
   }
+  @media (max-width: 600px) {
+    .btn-nuevo-cliente {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+    }
+  }
   .btn-nuevo-cliente:hover { background: #6a48e0; transform: translateY(-1px); }
 
   /* ─── MAIN LAYOUT ─── */
@@ -1475,9 +1481,7 @@
     <button class="mobile-nav-btn active" id="nav-clientes-btn" onclick="toggleSidebar()">
       <span class="material-symbols-rounded nav-icon">groups</span> Clientes
     </button>
-    <button class="mobile-nav-btn" onclick="abrirModalCliente()">
-      <span class="material-symbols-rounded nav-icon">add_circle</span> Nuevo
-    </button>
+
     <button class="mobile-nav-btn" id="nav-pub-btn" onclick="abrirModalPub()" style="display:none">
       <span class="material-symbols-rounded nav-icon">edit_note</span> Publicar
     </button>
