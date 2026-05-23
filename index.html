@@ -1391,6 +1391,15 @@
     .dash-dos-col > .dash-seccion:last-child {
       overflow-x: auto;
     }
+    #dash-cal-wrap .cal-celda {
+      min-height: 150px !important;
+    }
+    #dash-cal-wrap .cal-hora-label {
+      height: 150px;
+    }
+    #dash-cal-wrap {
+      min-height: 658px;
+    }
   }
 
   /* ─── TOAST ─── */
@@ -3220,7 +3229,7 @@ function renderDashCalendario(todasPubs) {
         const fechaStr = toDateStr(d);
         const pubs = todasPubs.filter(p => p.fecha === fechaStr && p.hora === hora);
         const esHoy = mismoDia(d, hoy);
-        return `<div class="cal-celda ${esHoy ? 'hoy' : ''}" style="min-height:70px;">
+        return `<div class="cal-celda ${esHoy ? 'hoy' : ''}" style="">
           ${pubs.map(p => {
             const cliente = S.clientes.find(c => c.id === p.clienteId);
             return `<div class="cal-pub cal-pub-${p.tipo?.toLowerCase()}" 
