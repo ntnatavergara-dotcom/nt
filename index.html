@@ -107,11 +107,124 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: width 0.25s cubic-bezier(0.4,0,0.2,1), min-width 0.25s;
+  }
+  .sidebar.collapsed {
+    width: 64px;
+    min-width: 64px;
+  }
+  .sidebar.collapsed .sidebar-title,
+  .sidebar.collapsed .cliente-nombre,
+  .sidebar.collapsed .cliente-estado-row,
+  .sidebar.collapsed .cliente-redes,
+  .sidebar.collapsed .sidebar-logout-label {
+    display: none;
+  }
+  .sidebar.collapsed .cliente-item {
+    justify-content: center;
+    padding: 10px;
+  }
+  .sidebar.collapsed .cliente-info { display: none; }
+  .sidebar.collapsed #lista-clientes { padding: 0; }
+  .sidebar.collapsed .sidebar-collapse-btn {
+    justify-content: center;
   }
   #lista-clientes {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+  .sidebar-collapse-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    color: var(--gris);
+    width: 100%;
+    border-top: 1px solid var(--gris-claro);
+    transition: background 0.15s;
+    margin-top: auto;
+  }
+  .sidebar-collapse-btn:hover { background: var(--crema); color: var(--negro); }
+
+  /* Panel derecho desktop */
+  .panel-derecho {
+    width: 260px;
+    min-width: 260px;
+    background: var(--blanco);
+    border-left: 2px solid var(--gris-claro);
+    padding: 20px 16px;
+    height: calc(100vh - 60px);
+    position: sticky;
+    top: 60px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .panel-derecho-titulo {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gris);
+    margin-bottom: 10px;
+  }
+  .pd-stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .pd-stat {
+    background: var(--crema);
+    border-radius: var(--radio-sm);
+    padding: 10px 12px;
+    display: flex; flex-direction: column;
+  }
+  .pd-stat-num {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--negro);
+  }
+  .pd-stat-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--gris);
+    margin-top: 2px;
+  }
+  .pd-tipo-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--crema-oscuro);
+    font-size: 0.8rem;
+  }
+  .pd-tipo-row:last-child { border-bottom: none; }
+  .pd-tipo-nombre { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .pd-tipo-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .pd-tipo-num { font-weight: 800; font-size: 0.9rem; }
+  .pd-proxima {
+    background: var(--crema);
+    border-radius: var(--radio-sm);
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .pd-proxima:hover { background: var(--crema-oscuro); }
+  .pd-proxima-tipo { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gris); margin-bottom: 3px; display: flex; align-items: center; gap: 4px; }
+  .pd-proxima-titulo { font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pd-proxima-fecha { font-size: 0.72rem; color: var(--gris); margin-top: 2px; }
+  .pd-empty { font-size: 0.82rem; color: var(--gris); text-align: center; padding: 12px 0; }
+
+  /* Área de contenido central con max-width */
+  .content-area {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+    max-width: 860px;
   }
   .sidebar-title {
     font-family: 'Karla', sans-serif;
@@ -1144,6 +1257,8 @@
   .btn-menu-toggle:active { background: var(--crema-oscuro); }
 
   @media (max-width: 900px) {
+    .panel-derecho { display: none !important; }
+    .sidebar-collapse-btn { display: none; }
     .btn-menu-toggle { display: flex; align-items: center; }
     .sidebar {
       position: fixed; top: 0; left: 0; z-index: 160;
@@ -1476,7 +1591,7 @@
     <div id="lista-clientes"><div class="sidebar-empty">Sin clientes aún</div></div>
 
     <!-- Botón cerrar sesión -->
-    <div style="padding: 16px 20px; border-top: 1px solid var(--gris-claro); margin-top: auto; position: sticky; bottom: 0; background: var(--blanco);">
+    <div style="padding: 12px 16px; border-top: 1px solid var(--gris-claro); background: var(--blanco);">
       <button onclick="logout()" style="
         width: 100%;
         display: flex; align-items: center; gap: 10px;
@@ -1492,9 +1607,14 @@
         onmouseover="this.style.background='var(--crema)';this.style.color='var(--negro)'"
         onmouseout="this.style.background='none';this.style.color='var(--gris)'">
         <span class="material-symbols-rounded" style="font-size:18px;">logout</span>
-        Cerrar sesión
+        <span class="sidebar-logout-label">Cerrar sesión</span>
       </button>
     </div>
+    <!-- Botón colapsar sidebar (solo desktop) -->
+    <button class="sidebar-collapse-btn" onclick="toggleCollapseSidebar()" id="btn-collapse">
+      <span class="material-symbols-rounded" id="collapse-icon">chevron_left</span>
+      <span class="sidebar-logout-label">Contraer</span>
+    </button>
   </aside>
 
   <!-- CONTENIDO -->
@@ -1538,6 +1658,21 @@
     </div>
   </main>
 </div>
+
+<!-- PANEL DERECHO DESKTOP -->
+<aside class="panel-derecho" id="panel-derecho" style="display:none">
+  <!-- Stats mes -->
+  <div>
+    <div class="panel-derecho-titulo">Este mes</div>
+    <div class="pd-stat-grid" id="pd-stats"></div>
+    <div id="pd-tipos"></div>
+  </div>
+  <!-- Próximas publicaciones -->
+  <div>
+    <div class="panel-derecho-titulo">Próximas publicaciones</div>
+    <div id="pd-proximas"></div>
+  </div>
+</aside>
 
 <!-- MOBILE NAV -->
 <nav class="mobile-nav">
@@ -1887,6 +2022,7 @@ function renderClienteHeader() {
 
 // ─── RENDER PUBLICACIONES ───
 function renderPubs() {
+  actualizarPanelDerecho();
   const grid = document.getElementById('pub-grid');
   let pubs = S.publicaciones;
   if (S.filtroTipo !== 'todos') pubs = pubs.filter(p => p.tipo === S.filtroTipo);
@@ -2112,7 +2248,101 @@ window.navSemana = function(dir) {
 
 window.addEventListener('resize', () => {
   if (S.tabActiva === 'calendario') renderCalendario();
+  actualizarPanelDerecho();
 });
+
+// ─── SIDEBAR COLLAPSE ───
+window._sidebarCollapsed = false;
+window.toggleCollapseSidebar = function() {
+  const sb = document.getElementById('sidebar');
+  const icon = document.getElementById('collapse-icon');
+  window._sidebarCollapsed = !window._sidebarCollapsed;
+  if (window._sidebarCollapsed) {
+    sb.classList.add('collapsed');
+    icon.textContent = 'chevron_right';
+  } else {
+    sb.classList.remove('collapsed');
+    icon.textContent = 'chevron_left';
+  }
+};
+
+// ─── PANEL DERECHO ───
+function actualizarPanelDerecho() {
+  const pd = document.getElementById('panel-derecho');
+  if (!pd) return;
+  if (window.innerWidth <= 900 || !S.clienteActivo) {
+    pd.style.display = 'none';
+    return;
+  }
+  pd.style.display = 'flex';
+  renderPanelDerecho();
+}
+
+function renderPanelDerecho() {
+  const hoy = new Date();
+  const mes = hoy.getMonth() + 1;
+  const año = hoy.getFullYear();
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+  // Stats del mes
+  const pubsMes = S.publicaciones.filter(p => {
+    if (!p.fecha) return false;
+    const [y, m] = p.fecha.split('-').map(Number);
+    return y === año && m === mes;
+  });
+  const publicadas = pubsMes.filter(p => p.estado === 'Publicado').length;
+  const pendientes = pubsMes.filter(p => p.estado !== 'Publicado').length;
+
+  document.getElementById('pd-stats').innerHTML = `
+    <div class="pd-stat">
+      <span class="pd-stat-num" style="color:var(--morado)">${publicadas}</span>
+      <span class="pd-stat-label">Publicadas</span>
+    </div>
+    <div class="pd-stat">
+      <span class="pd-stat-num">${pendientes}</span>
+      <span class="pd-stat-label">Pendientes</span>
+    </div>`;
+
+  // Por tipo
+  const tipos = [
+    { nombre: 'Reel', color: '#FF5C5C' },
+    { nombre: 'Post', color: '#4A90D9' },
+    { nombre: 'Stories', color: '#835FFD' },
+    { nombre: 'Carrusel', color: '#F5A623' },
+  ];
+  document.getElementById('pd-tipos').innerHTML = tipos.map(t => {
+    const n = pubsMes.filter(p => p.tipo === t.nombre).length;
+    if (!n) return '';
+    return `<div class="pd-tipo-row">
+      <div class="pd-tipo-nombre">
+        <div class="pd-tipo-dot" style="background:${t.color}"></div>
+        ${t.nombre}
+      </div>
+      <span class="pd-tipo-num">${n}</span>
+    </div>`;
+  }).join('');
+
+  // Próximas publicaciones (no publicadas, con fecha >= hoy)
+  const hoyStr = `${año}-${String(mes).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+  const proximas = S.publicaciones
+    .filter(p => p.fecha >= hoyStr && p.estado !== 'Publicado')
+    .sort((a, b) => a.fecha.localeCompare(b.fecha))
+    .slice(0, 5);
+
+  const coloresTipo = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+
+  document.getElementById('pd-proximas').innerHTML = proximas.length
+    ? proximas.map(p => `
+      <div class="pd-proxima" onclick="editarPub('${p.id}')"
+           style="border-left-color:${coloresTipo[p.tipo] || 'var(--gris)'}; margin-bottom:8px;">
+        <div class="pd-proxima-tipo">
+          ${tipoIcon(p.tipo)} ${p.tipo || ''}
+        </div>
+        <div class="pd-proxima-titulo">${p.titulo}</div>
+        <div class="pd-proxima-fecha">${p.fecha ? formatFecha(p.fecha) : ''} ${p.hora ? '· ' + formatHora(p.hora) : ''}</div>
+      </div>`).join('')
+    : '<div class="pd-empty">Sin próximas publicaciones</div>';
+}
 
 // ─── HISTORIAL ───
 window._historialMes = null;
