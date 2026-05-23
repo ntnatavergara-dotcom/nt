@@ -1179,6 +1179,27 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-title">Clientes</div>
     <div id="lista-clientes"><div class="sidebar-empty">Sin clientes aún</div></div>
+
+    <!-- Botón cerrar sesión -->
+    <div style="padding: 16px 20px; border-top: 1px solid var(--gris-claro); margin-top: auto; position: sticky; bottom: 0; background: var(--blanco);">
+      <button onclick="logout()" style="
+        width: 100%;
+        display: flex; align-items: center; gap: 10px;
+        padding: 10px 14px;
+        border-radius: var(--radio-xs);
+        border: 1.5px solid var(--gris-claro);
+        background: none;
+        font-family: 'Karla', sans-serif;
+        font-size: 0.85rem; font-weight: 600;
+        color: var(--gris); cursor: pointer;
+        transition: all 0.15s;
+        -webkit-tap-highlight-color: transparent;"
+        onmouseover="this.style.background='var(--crema)';this.style.color='var(--negro)'"
+        onmouseout="this.style.background='none';this.style.color='var(--gris)'">
+        <span class="material-symbols-rounded" style="font-size:18px;">logout</span>
+        Cerrar sesión
+      </button>
+    </div>
   </aside>
 
   <!-- CONTENIDO -->
