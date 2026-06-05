@@ -2370,9 +2370,9 @@
         <div class="form-group">
           <label class="form-label">Estado</label>
           <div class="estado-selector" id="tarea-estado-selector">
-            <button class="estado-option sel-idea" data-estado="Pendiente" onclick="selEstadoTarea(this)">⏳ Pendiente</button>
-            <button class="estado-option" data-estado="En progreso" onclick="selEstadoTarea(this)">⚙️ En progreso</button>
-            <button class="estado-option" data-estado="Hecha" onclick="selEstadoTarea(this)">✅ Hecha</button>
+            <button class="estado-option sel-idea" data-estado="Pendiente" onclick="selEstadoTarea(this)"><span class="material-symbols-rounded" style="font-size:15px">schedule</span> Pendiente</button>
+            <button class="estado-option" data-estado="En progreso" onclick="selEstadoTarea(this)"><span class="material-symbols-rounded" style="font-size:15px">manufacturing</span> En progreso</button>
+            <button class="estado-option" data-estado="Hecha" onclick="selEstadoTarea(this)"><span class="material-symbols-rounded" style="font-size:15px">check_circle</span> Hecha</button>
           </div>
         </div>
       </div>
@@ -3623,7 +3623,7 @@ function renderTareas() {
       const vencida = t.fecha < hoyStr && t.estado !== 'Hecha';
       const esHoy = t.fecha === hoyStr;
       const cls = vencida ? 'tarea-fecha-vencida' : esHoy ? 'tarea-fecha-hoy' : 'tarea-fecha-ok';
-      const label = vencida ? '⚠️ Vencida' : esHoy ? '🔥 Hoy' : '';
+      const label = vencida ? '<span class="material-symbols-rounded" style="font-size:11px">warning</span> Vencida' : esHoy ? '<span class="material-symbols-rounded" style="font-size:11px">local_fire_department</span> Hoy' : '';
       fechaHtml = `<span class="tarea-fecha-badge ${cls}"><span class="material-symbols-rounded" style="font-size:11px">calendar_today</span> ${formatFecha(t.fecha)}${label ? ' ' + label : ''}</span>`;
     }
     const badgeClass = t.estado === 'Hecha' ? 'badge-hecha' : t.estado === 'En progreso' ? 'badge-progreso' : 'badge-pendiente';
@@ -3768,7 +3768,7 @@ async function actualizarDashTareas() {
   if (!el) return;
 
   if (!pendientes.length) {
-    el.innerHTML = '<div class="dash-empty">Sin tareas pendientes 🎉</div>';
+    el.innerHTML = '<div class="dash-empty"><span class="material-symbols-rounded" style="font-size:1.5rem;display:block;margin-bottom:4px;color:#22c55e">task_alt</span>Sin tareas pendientes</div>';
     return;
   }
 
@@ -3784,7 +3784,7 @@ async function actualizarDashTareas() {
         <div class="dash-tarea-titulo">${t.titulo}</div>
         <div class="dash-tarea-meta">
           ${cliente ? cliente.nombre + ' · ' : ''}
-          ${t.fecha ? (vencida ? '⚠️ Vencida · ' : esHoy ? '🔥 Hoy · ' : '') + formatFecha(t.fecha) : 'Sin fecha'}
+          ${t.fecha ? (vencida ? '<span class="material-symbols-rounded" style="font-size:11px;color:var(--rojo-coral)">warning</span> Vencida · ' : esHoy ? '<span class="material-symbols-rounded" style="font-size:11px;color:#b8a000">local_fire_department</span> Hoy · ' : '') + formatFecha(t.fecha) : 'Sin fecha'}
         </div>
       </div>
     </div>`;
