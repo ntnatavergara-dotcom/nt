@@ -709,6 +709,7 @@
   .tipo-post { background: rgba(74,144,217,0.12); color: var(--azul); }
   .tipo-stories { background: rgba(131,95,253,0.12); color: var(--morado); }
   .tipo-carrusel { background: rgba(245,166,35,0.12); color: var(--dorado); }
+  .tipo-web { background: rgba(34,197,94,0.12); color: #166534; }
 
   .pub-estado {
     display: inline-flex; align-items: center; gap: 4px;
@@ -1443,6 +1444,106 @@
   .btn-regresar:hover { color: var(--morado); }
   .btn-regresar .material-symbols-rounded { font-size: 18px; }
 
+  /* ─── CANAL SELECTOR ─── */
+  .canal-selector {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 4px;
+  }
+  .canal-option {
+    border: 2px solid var(--gris-claro);
+    border-radius: var(--radio-xs);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--gris);
+  }
+  .canal-option:hover { border-color: var(--negro); color: var(--negro); }
+  .canal-option.selected-redes { border-color: var(--morado); background: rgba(131,95,253,0.08); color: var(--morado); }
+  .canal-option.selected-web { border-color: var(--azul); background: rgba(74,144,217,0.08); color: var(--azul); }
+
+  /* Contador SEO */
+  .seo-contador-ok { color: #22c55e !important; }
+  .seo-contador-warn { color: var(--dorado) !important; }
+  .seo-contador-error { color: var(--rojo-coral) !important; }
+
+  /* ─── TAREAS ─── */
+  .tareas-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .tareas-titulo { font-size: 1.2rem; font-weight: 700; }
+  .tarea-card {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 14px 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 10px;
+    display: flex; align-items: flex-start; gap: 12px;
+    cursor: pointer; transition: all 0.15s;
+    border: 2px solid transparent;
+  }
+  .tarea-card:hover { border-color: var(--morado); transform: translateY(-1px); }
+  .tarea-check {
+    width: 20px; height: 20px; border-radius: 50%;
+    border: 2px solid var(--gris-claro);
+    flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; cursor: pointer;
+  }
+  .tarea-check.hecha { background: #22c55e; border-color: #22c55e; }
+  .tarea-check.progreso { background: var(--morado); border-color: var(--morado); }
+  .tarea-info { flex: 1; min-width: 0; }
+  .tarea-card-titulo {
+    font-weight: 700; font-size: 0.9rem; margin-bottom: 3px;
+  }
+  .tarea-card-titulo.hecha { text-decoration: line-through; color: var(--gris); }
+  .tarea-card-nota {
+    font-size: 0.78rem; color: var(--gris); margin-bottom: 6px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .tarea-card-meta {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .tarea-fecha-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.72rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .tarea-fecha-vencida { background: rgba(255,92,92,0.12); color: var(--rojo-coral); }
+  .tarea-fecha-hoy { background: rgba(245,255,0,0.25); color: #7a6a00; }
+  .tarea-fecha-ok { background: var(--crema-oscuro); color: var(--gris); }
+  .tarea-estado-badge {
+    font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .badge-pendiente { background: rgba(138,138,138,0.12); color: var(--gris); }
+  .badge-progreso { background: rgba(131,95,253,0.12); color: var(--morado); }
+  .badge-hecha { background: rgba(34,197,94,0.12); color: #166534; }
+  .tareas-empty { text-align: center; padding: 40px 20px; color: var(--gris); font-size: 0.9rem; }
+  .tareas-grupo-titulo {
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--gris); margin: 16px 0 8px;
+  }
+
+  /* Dashboard tareas widget */
+  .dash-tarea-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid var(--crema-oscuro);
+    cursor: pointer;
+  }
+  .dash-tarea-item:last-child { border-bottom: none; }
+  .dash-tarea-check {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--gris-claro); flex-shrink: 0; margin-top: 2px;
+  }
+  .dash-tarea-info { flex: 1; min-width: 0; }
+  .dash-tarea-titulo { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-tarea-meta { font-size: 0.7rem; color: var(--gris); margin-top: 1px; }
+
   /* ─── TOAST ─── */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 300;
@@ -1898,6 +1999,17 @@
           </div>
         </div>
 
+        <!-- Tareas pendientes -->
+        <div class="dash-seccion" style="margin-bottom:16px;" id="dash-tareas-wrap">
+          <div class="dash-seccion-titulo" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">task_alt</span>
+              Tareas pendientes
+            </div>
+          </div>
+          <div id="dash-tareas"></div>
+        </div>
+
         <!-- Dos columnas: próximas + calendario -->
         <div class="dash-dos-col">
           <div class="dash-seccion">
@@ -1946,6 +2058,7 @@
         <button class="tab active" onclick="cambiarTab('gestion', this)">Gestión</button>
         <button class="tab" onclick="cambiarTab('calendario', this)">Calendario</button>
         <button class="tab" onclick="cambiarTab('historial', this)">Historial</button>
+        <button class="tab" onclick="cambiarTab('tareas', this)">Tareas</button>
       </div>
       <!-- Panels -->
       <div id="tab-gestion">
@@ -1966,6 +2079,7 @@
       </div>
       <div id="tab-calendario" style="display:none"></div>
       <div id="tab-historial" style="display:none"></div>
+      <div id="tab-tareas" style="display:none"></div>
     </div>
   </main>
   <!-- PANEL DERECHO DESKTOP -->
@@ -2081,33 +2195,50 @@
       <button class="btn-icon" onclick="cerrarModal('modal-pub')"><span class="material-symbols-rounded">close</span></button>
     </div>
     <div class="modal-body">
+
+      <!-- Selector canal -->
       <div class="form-group">
-        <label class="form-label">Tipo de publicación *</label>
-        <div class="tipo-selector">
-          <div class="tipo-option" data-tipo="Reel" onclick="selTipo(this)">
-            <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">play_circle</span> Reel
+        <label class="form-label">Canal *</label>
+        <div class="canal-selector">
+          <div class="canal-option" data-canal="redes" onclick="selCanal(this)">
+            <span class="material-symbols-rounded" style="font-size:1.3rem">smartphone</span>
+            Red social
           </div>
-          <div class="tipo-option" data-tipo="Post" onclick="selTipo(this)">
-            <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">image</span> Post
-          </div>
-          <div class="tipo-option" data-tipo="Stories" onclick="selTipo(this)">
-            <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">circles</span> Stories
-          </div>
-          <div class="tipo-option" data-tipo="Carrusel" onclick="selTipo(this)">
-            <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">auto_stories</span> Carrusel
+          <div class="canal-option" data-canal="web" onclick="selCanal(this)">
+            <span class="material-symbols-rounded" style="font-size:1.3rem">language</span>
+            Web
           </div>
         </div>
-        <div id="auto-format-badge" style="display:none" class="auto-badge">
-          <div class="auto-color" id="auto-color"></div>
-          <span id="auto-medida" class="auto-medida"></span>
-          <span id="auto-label" style="color:var(--gris); font-size:0.8rem"></span>
+      </div>
+
+      <!-- CAMPOS RED SOCIAL -->
+      <div id="campos-redes">
+        <div class="form-group">
+          <label class="form-label">Tipo *</label>
+          <div class="tipo-selector">
+            <div class="tipo-option" data-tipo="Reel" onclick="selTipo(this)">
+              <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">play_circle</span> Reel
+            </div>
+            <div class="tipo-option" data-tipo="Post" onclick="selTipo(this)">
+              <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">image</span> Post
+            </div>
+            <div class="tipo-option" data-tipo="Stories" onclick="selTipo(this)">
+              <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">circles</span> Stories
+            </div>
+            <div class="tipo-option" data-tipo="Carrusel" onclick="selTipo(this)">
+              <span class="material-symbols-rounded" style="font-size:1.4rem;display:block;margin-bottom:4px">auto_stories</span> Carrusel
+            </div>
+          </div>
+          <div id="auto-format-badge" style="display:none" class="auto-badge">
+            <div class="auto-color" id="auto-color"></div>
+            <span id="auto-medida" class="auto-medida"></span>
+            <span id="auto-label" style="color:var(--gris); font-size:0.8rem"></span>
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Título *</label>
-        <input type="text" class="form-input" id="pub-titulo" placeholder="Ej: Lanzamiento nueva colección">
-      </div>
-      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Título *</label>
+          <input type="text" class="form-input" id="pub-titulo" placeholder="Ej: Lanzamiento nueva colección">
+        </div>
         <div class="form-group">
           <label class="form-label">Red social</label>
           <select class="form-select" id="pub-red">
@@ -2121,11 +2252,65 @@
           </select>
         </div>
         <div class="form-group">
+          <label class="form-label">Idea visual</label>
+          <textarea class="form-textarea" id="pub-visual" placeholder="Describe el concepto visual, colores, referencias..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Textos / Voz en off</label>
+          <textarea class="form-textarea" id="pub-textos" placeholder="Guion, textos en pantalla o voz en off..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Caption</label>
+          <textarea class="form-textarea" id="pub-caption" placeholder="Texto del caption para la publicación..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hashtags</label>
+          <input type="text" class="form-input" id="pub-hashtags" placeholder="#moda #tendencias #colombia">
+        </div>
+      </div>
+
+      <!-- CAMPOS WEB -->
+      <div id="campos-web" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Título *</label>
+          <input type="text" class="form-input" id="pub-titulo-web" placeholder="Ej: Cómo crear contenido de valor">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Título SEO
+            <span id="contador-seo-titulo" style="float:right;font-size:0.72rem;color:var(--gris);font-weight:400">0/60</span>
+          </label>
+          <input type="text" class="form-input" id="pub-seo-titulo" maxlength="60"
+            placeholder="Título optimizado para buscadores..."
+            oninput="contarChars('pub-seo-titulo','contador-seo-titulo',60)">
+          <p class="form-hint">Máximo 60 caracteres para aparecer completo en Google.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Meta descripción SEO
+            <span id="contador-seo-desc" style="float:right;font-size:0.72rem;color:var(--gris);font-weight:400">0/160</span>
+          </label>
+          <textarea class="form-textarea" id="pub-seo-desc" maxlength="160"
+            placeholder="Descripción que aparece en los resultados de búsqueda..."
+            oninput="contarChars('pub-seo-desc','contador-seo-desc',160)"></textarea>
+          <p class="form-hint">Máximo 160 caracteres.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Título para la imagen</label>
+          <input type="text" class="form-input" id="pub-img-titulo" placeholder="Texto alternativo o título de imagen...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Texto del artículo</label>
+          <textarea class="form-textarea" id="pub-articulo" style="min-height:140px" placeholder="Contenido completo del artículo..."></textarea>
+        </div>
+      </div>
+
+      <!-- CAMPOS COMUNES -->
+      <div class="form-row fecha-hora-row">
+        <div class="form-group">
           <label class="form-label">Fecha de publicación</label>
           <input type="date" class="form-input" id="pub-fecha">
         </div>
-      </div>
-      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Hora</label>
           <select class="form-select" id="pub-hora">
@@ -2134,45 +2319,70 @@
             <option value="15:00">3:00 PM</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Estado</label>
-          <div class="estado-selector" id="estado-selector">
-            <button class="estado-option sel-idea" data-estado="Idea" onclick="selEstado(this)"><span class="material-symbols-rounded">lightbulb</span> Idea</button>
-            <button class="estado-option" data-estado="Producción" onclick="selEstado(this)"><span class="material-symbols-rounded">settings</span> Producción</button>
-            <button class="estado-option" data-estado="Listo" onclick="selEstado(this)"><span class="material-symbols-rounded">check_circle</span> Listo</button>
-            <button class="estado-option" data-estado="Publicado" onclick="selEstado(this)"><span class="material-symbols-rounded">rocket_launch</span> Publicado</button>
-          </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estado</label>
+        <div class="estado-selector" id="estado-selector">
+          <button class="estado-option sel-idea" data-estado="Idea" onclick="selEstado(this)"><span class="material-symbols-rounded">lightbulb</span> Idea</button>
+          <button class="estado-option" data-estado="Producción" onclick="selEstado(this)"><span class="material-symbols-rounded">settings</span> Producción</button>
+          <button class="estado-option" data-estado="Listo" onclick="selEstado(this)"><span class="material-symbols-rounded">check_circle</span> Listo</button>
+          <button class="estado-option" data-estado="Publicado" onclick="selEstado(this)"><span class="material-symbols-rounded">rocket_launch</span> Publicado</button>
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Idea visual</label>
-        <textarea class="form-textarea" id="pub-visual" placeholder="Describe el concepto visual, colores, referencias..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Textos / Voz en off</label>
-        <textarea class="form-textarea" id="pub-textos" placeholder="Guion, textos en pantalla o voz en off..."></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Caption</label>
-        <textarea class="form-textarea" id="pub-caption" placeholder="Texto del caption para la publicación..."></textarea>
       </div>
       <div class="form-group">
         <label class="form-label">Link del diseño</label>
         <div style="position:relative;">
-          <input type="url" class="form-input" id="pub-diseno" placeholder="https://www.icloud.com/..." style="padding-right:44px;">
+          <input type="url" class="form-input" id="pub-diseno" placeholder="https://drive.google.com/..." style="padding-right:44px;">
           <span class="material-symbols-rounded" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gris);font-size:18px;pointer-events:none;">link</span>
         </div>
-        <p class="form-hint">Pega el link de iCloud, Drive u otro servicio.</p>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Hashtags</label>
-        <input type="text" class="form-input" id="pub-hashtags" placeholder="#moda #tendencias #colombia">
+        <p class="form-hint">Pega el link de Google Drive u otro servicio.</p>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn-secondary" onclick="cerrarModal('modal-pub')">Cancelar</button>
       <button class="btn-danger" id="btn-eliminar-pub" style="display:none; margin-right:auto" onclick="eliminarPub()"><span class="material-symbols-rounded">delete</span> Eliminar</button>
       <button class="btn-primary" onclick="guardarPub()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAREA -->
+<div class="modal-overlay" id="modal-tarea">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modal-tarea-titulo">Nueva tarea</span>
+      <button class="btn-icon" onclick="cerrarModal('modal-tarea')"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input type="text" class="form-input" id="tarea-titulo" placeholder="Ej: Buscar referencias visuales">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nota</label>
+        <textarea class="form-textarea" id="tarea-nota" placeholder="Detalles, ideas, referencias..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Fecha límite</label>
+          <input type="date" class="form-input" id="tarea-fecha">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Estado</label>
+          <div class="estado-selector" id="tarea-estado-selector">
+            <button class="estado-option sel-idea" data-estado="Pendiente" onclick="selEstadoTarea(this)">⏳ Pendiente</button>
+            <button class="estado-option" data-estado="En progreso" onclick="selEstadoTarea(this)">⚙️ En progreso</button>
+            <button class="estado-option" data-estado="Hecha" onclick="selEstadoTarea(this)">✅ Hecha</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="cerrarModal('modal-tarea')">Cancelar</button>
+      <button class="btn-danger" id="btn-eliminar-tarea" style="display:none; margin-right:auto" onclick="eliminarTarea()">
+        <span class="material-symbols-rounded">delete</span> Eliminar
+      </button>
+      <button class="btn-primary" onclick="guardarTarea()">Guardar</button>
     </div>
   </div>
 </div>
@@ -2222,6 +2432,7 @@ const TIPOS = {
   Post:     { color: '#4A90D9', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
   Stories:  { color: '#835FFD', medida: '1080 × 1920 px', label: 'Vertical · 9:16' },
   Carrusel: { color: '#F5A623', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
+  Web:      { color: '#22c55e', medida: 'Artículo web', label: 'Blog / SEO' },
 };
 const ESTADOS = {
   'Idea': 'idea', 'Producción': 'produccion', 'Listo': 'listo', 'Publicado': 'publicado'
@@ -2234,6 +2445,7 @@ async function cargarClientes() {
   S.clientes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderSidebar();
   renderDashboard();
+  actualizarDashTareas();
 }
 
 async function cargarPublicaciones(clienteId) {
@@ -2296,6 +2508,7 @@ window.seleccionarCliente = async function(id) {
   cerrarSidebar();
   renderSidebar();
   await cargarPublicaciones(id);
+  await cargarTareas(id);
   renderClienteHeader();
   document.getElementById('panel-principal').style.display = 'none';
   document.getElementById('panel-cliente').style.display = 'block';
@@ -2379,7 +2592,7 @@ function renderPubs() {
 }
 
 function tipoIcon(tipo) {
-  const icons = { Reel: 'play_circle', Post: 'image', Stories: 'circles', Carrusel: 'auto_stories' };
+  const icons = { Reel: 'play_circle', Post: 'image', Stories: 'circles', Carrusel: 'auto_stories', Web: 'language' };
   return icons[tipo] ? `<span class="material-symbols-rounded" style="font-size:14px">${icons[tipo]}</span>` : '';
 }
 function formatFecha(f) {
@@ -2803,8 +3016,10 @@ window.cambiarTab = function(tab, btn) {
   document.getElementById('tab-gestion').style.display = tab === 'gestion' ? 'block' : 'none';
   document.getElementById('tab-calendario').style.display = tab === 'calendario' ? 'block' : 'none';
   document.getElementById('tab-historial').style.display = tab === 'historial' ? 'block' : 'none';
+  document.getElementById('tab-tareas').style.display = tab === 'tareas' ? 'block' : 'none';
   if (tab === 'calendario') renderCalendario();
   if (tab === 'historial') renderHistorial();
+  if (tab === 'tareas') renderTareas();
 };
 
 window.filtrarTipo = function(tipo, btn) {
@@ -2963,6 +3178,24 @@ window.editarPub = function(id) {
   document.getElementById('pub-caption').value = p.caption || '';
   document.getElementById('pub-hashtags').value = p.hashtags || '';
   document.getElementById('pub-diseno').value = p.diseno || '';
+  // Canal
+  window._canalSeleccionado = p.canal || 'redes';
+  document.querySelectorAll('.canal-option').forEach(el => {
+    el.className = 'canal-option';
+    if (el.dataset.canal === window._canalSeleccionado) el.classList.add(`selected-${window._canalSeleccionado}`);
+  });
+  const esWeb = window._canalSeleccionado === 'web';
+  document.getElementById('campos-redes').style.display = esWeb ? 'none' : 'block';
+  document.getElementById('campos-web').style.display = esWeb ? 'block' : 'none';
+  if (esWeb) {
+    document.getElementById('pub-titulo-web').value = p.titulo || '';
+    document.getElementById('pub-seo-titulo').value = p.seoTitulo || '';
+    document.getElementById('pub-seo-desc').value = p.seoDesc || '';
+    document.getElementById('pub-img-titulo').value = p.imgTitulo || '';
+    document.getElementById('pub-articulo').value = p.articulo || '';
+    contarChars('pub-seo-titulo','contador-seo-titulo',60);
+    contarChars('pub-seo-desc','contador-seo-desc',160);
+  }
   // Tipo
   document.querySelectorAll('.tipo-option').forEach(el => {
     el.className = 'tipo-option';
@@ -2978,23 +3211,31 @@ window.editarPub = function(id) {
 };
 
 function limpiarFormPub() {
-  ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags','pub-diseno'].forEach(id => {
-    document.getElementById(id).value = '';
+  ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags','pub-diseno',
+   'pub-titulo-web','pub-seo-titulo','pub-seo-desc','pub-img-titulo','pub-articulo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
   });
   document.getElementById('pub-red').value = '';
   document.getElementById('pub-hora').value = '10:00';
   document.querySelectorAll('.tipo-option').forEach(el => el.className = 'tipo-option');
+  document.querySelectorAll('.canal-option').forEach(el => el.className = 'canal-option');
   document.querySelectorAll('.estado-option').forEach(el => {
     el.className = 'estado-option';
     if (el.dataset.estado === 'Idea') el.classList.add('sel-idea');
   });
   document.getElementById('auto-format-badge').style.display = 'none';
+  document.getElementById('campos-redes').style.display = 'none';
+  document.getElementById('campos-web').style.display = 'none';
+  document.getElementById('contador-seo-titulo').textContent = '0/60';
+  document.getElementById('contador-seo-desc').textContent = '0/160';
+  window._canalSeleccionado = null;
 }
 
 window.guardarPub = async function() {
-  const titulo = document.getElementById('pub-titulo').value.trim();
-  if (!titulo) { toast('El título es obligatorio', 'error'); return; }
-  if (!S.tipoSeleccionado) { toast('Selecciona el tipo de publicación', 'error'); return; }
+  const titulo = document.getElementById('pub-titulo') ? document.getElementById('pub-titulo').value.trim() : '';
+  if (!window._canalSeleccionado) { toast('Selecciona un canal (Red social o Web)', 'error'); return; }
+  if (window._canalSeleccionado === 'redes' && !S.tipoSeleccionado) { toast('Selecciona el tipo de publicación', 'error'); return; }
   const data = {
     clienteId: S.clienteActivo.id,
     tipo: S.tipoSeleccionado,
@@ -3031,6 +3272,25 @@ window.eliminarPub = async function() {
     await cargarPublicaciones(S.clienteActivo.id);
     toast('Publicación eliminada', 'success');
   } catch(e) { toast('Error al eliminar', 'error'); }
+};
+
+// ─── CANAL SELECTOR ───
+window._canalSeleccionado = null;
+
+window.selCanal = function(el) {
+  const canal = el.dataset.canal;
+  window._canalSeleccionado = canal;
+  document.querySelectorAll('.canal-option').forEach(o => o.className = 'canal-option');
+  el.classList.add(`selected-${canal}`);
+  document.getElementById('campos-redes').style.display = canal === 'redes' ? 'block' : 'none';
+  document.getElementById('campos-web').style.display = canal === 'web' ? 'block' : 'none';
+};
+
+window.contarChars = function(inputId, contadorId, max) {
+  const val = document.getElementById(inputId).value.length;
+  const el = document.getElementById(contadorId);
+  el.textContent = `${val}/${max}`;
+  el.className = val > max * 0.9 ? 'seo-contador-error' : val > max * 0.75 ? 'seo-contador-warn' : 'seo-contador-ok';
 };
 
 // ─── TIPO SELECTOR ───
@@ -3331,6 +3591,205 @@ window.navDashSemana = function(dir) {
   else S.semanaOffset += dir;
   renderDashboard();
 };
+
+// ─── TAREAS ───
+window._estadoTarea = 'Pendiente';
+window._editandoTareaId = null;
+S.tareas = [];
+
+async function cargarTareas(clienteId) {
+  const q = query(collection(db, 'tareas'), where('clienteId', '==', clienteId));
+  const snap = await getDocs(q);
+  S.tareas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderTareas();
+}
+
+function renderTareas() {
+  const el = document.getElementById('tab-tareas');
+  if (!el) return;
+
+  const hoy = new Date();
+  const hoyStr = toDateStr(hoy);
+
+  // Separar por estado
+  const pendientes = S.tareas.filter(t => t.estado !== 'Hecha').sort((a,b) => (a.fecha||'9999').localeCompare(b.fecha||'9999'));
+  const hechas = S.tareas.filter(t => t.estado === 'Hecha').sort((a,b) => (b.fecha||'').localeCompare(a.fecha||''));
+
+  const renderTarea = (t) => {
+    const checkClass = t.estado === 'Hecha' ? 'hecha' : t.estado === 'En progreso' ? 'progreso' : '';
+    const tituloClass = t.estado === 'Hecha' ? 'hecha' : '';
+    let fechaHtml = '';
+    if (t.fecha) {
+      const vencida = t.fecha < hoyStr && t.estado !== 'Hecha';
+      const esHoy = t.fecha === hoyStr;
+      const cls = vencida ? 'tarea-fecha-vencida' : esHoy ? 'tarea-fecha-hoy' : 'tarea-fecha-ok';
+      const label = vencida ? '⚠️ Vencida' : esHoy ? '🔥 Hoy' : '';
+      fechaHtml = `<span class="tarea-fecha-badge ${cls}"><span class="material-symbols-rounded" style="font-size:11px">calendar_today</span> ${formatFecha(t.fecha)}${label ? ' ' + label : ''}</span>`;
+    }
+    const badgeClass = t.estado === 'Hecha' ? 'badge-hecha' : t.estado === 'En progreso' ? 'badge-progreso' : 'badge-pendiente';
+    return `
+    <div class="tarea-card" onclick="editarTarea('${t.id}')">
+      <div class="tarea-check ${checkClass}" onclick="event.stopPropagation(); toggleTarea('${t.id}')">
+        ${t.estado === 'Hecha' ? '<span class="material-symbols-rounded" style="font-size:13px;color:white">check</span>' : ''}
+        ${t.estado === 'En progreso' ? '<span class="material-symbols-rounded" style="font-size:13px;color:white">more_horiz</span>' : ''}
+      </div>
+      <div class="tarea-info">
+        <div class="tarea-card-titulo ${tituloClass}">${t.titulo}</div>
+        ${t.nota ? `<div class="tarea-card-nota">${t.nota}</div>` : ''}
+        <div class="tarea-card-meta">
+          ${fechaHtml}
+          <span class="tarea-estado-badge ${badgeClass}">${t.estado}</span>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  let html = `
+  <div class="tareas-toolbar">
+    <span class="tareas-titulo">Tareas <span style="color:var(--gris);font-size:0.85rem;font-weight:500">(${S.tareas.filter(t=>t.estado!=='Hecha').length} pendientes)</span></span>
+    <button class="btn-add-pub" onclick="abrirModalTarea()">
+      <span class="material-symbols-rounded">add</span> Nueva tarea
+    </button>
+  </div>`;
+
+  if (!S.tareas.length) {
+    html += `<div class="tareas-empty"><span class="material-symbols-rounded" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--gris-claro)">task_alt</span>Sin tareas aún</div>`;
+  } else {
+    if (pendientes.length) {
+      html += `<div class="tareas-grupo-titulo">Por hacer</div>`;
+      html += pendientes.map(renderTarea).join('');
+    }
+    if (hechas.length) {
+      html += `<div class="tareas-grupo-titulo" style="margin-top:20px">Completadas</div>`;
+      html += hechas.map(renderTarea).join('');
+    }
+  }
+
+  el.innerHTML = html;
+}
+
+window.abrirModalTarea = function() {
+  window._editandoTareaId = null;
+  window._estadoTarea = 'Pendiente';
+  document.getElementById('tarea-titulo').value = '';
+  document.getElementById('tarea-nota').value = '';
+  document.getElementById('tarea-fecha').value = '';
+  document.getElementById('modal-tarea-titulo').textContent = 'Nueva tarea';
+  document.getElementById('btn-eliminar-tarea').style.display = 'none';
+  document.querySelectorAll('#tarea-estado-selector .estado-option').forEach(b => {
+    b.className = 'estado-option';
+    if (b.dataset.estado === 'Pendiente') b.classList.add('sel-idea');
+  });
+  document.getElementById('modal-tarea').classList.add('open');
+};
+
+window.editarTarea = function(id) {
+  const t = S.tareas.find(x => x.id === id);
+  if (!t) return;
+  window._editandoTareaId = id;
+  window._estadoTarea = t.estado;
+  document.getElementById('tarea-titulo').value = t.titulo || '';
+  document.getElementById('tarea-nota').value = t.nota || '';
+  document.getElementById('tarea-fecha').value = t.fecha || '';
+  document.getElementById('modal-tarea-titulo').textContent = 'Editar tarea';
+  document.getElementById('btn-eliminar-tarea').style.display = 'flex';
+  document.querySelectorAll('#tarea-estado-selector .estado-option').forEach(b => {
+    b.className = 'estado-option';
+    if (b.dataset.estado === t.estado) {
+      b.classList.add(t.estado === 'Hecha' ? 'sel-listo' : t.estado === 'En progreso' ? 'sel-produccion' : 'sel-idea');
+    }
+  });
+  document.getElementById('modal-tarea').classList.add('open');
+};
+
+window.selEstadoTarea = function(el) {
+  window._estadoTarea = el.dataset.estado;
+  document.querySelectorAll('#tarea-estado-selector .estado-option').forEach(b => b.className = 'estado-option');
+  const cls = el.dataset.estado === 'Hecha' ? 'sel-listo' : el.dataset.estado === 'En progreso' ? 'sel-produccion' : 'sel-idea';
+  el.classList.add(cls);
+};
+
+window.guardarTarea = async function() {
+  const titulo = document.getElementById('tarea-titulo').value.trim();
+  if (!titulo) { toast('El título es obligatorio', 'error'); return; }
+  const data = {
+    clienteId: S.clienteActivo.id,
+    titulo,
+    nota: document.getElementById('tarea-nota').value.trim(),
+    fecha: document.getElementById('tarea-fecha').value,
+    estado: window._estadoTarea,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    if (window._editandoTareaId) {
+      await updateDoc(doc(db, 'tareas', window._editandoTareaId), data);
+      toast('Tarea actualizada ✓', 'success');
+    } else {
+      data.createdAt = new Date().toISOString();
+      await addDoc(collection(db, 'tareas'), data);
+      toast('Tarea creada ✓', 'success');
+    }
+    cerrarModal('modal-tarea');
+    await cargarTareas(S.clienteActivo.id);
+    actualizarDashTareas();
+  } catch(e) { toast('Error al guardar', 'error'); console.error(e); }
+};
+
+window.eliminarTarea = async function() {
+  if (!confirm('¿Eliminar esta tarea?')) return;
+  try {
+    await deleteDoc(doc(db, 'tareas', window._editandoTareaId));
+    cerrarModal('modal-tarea');
+    await cargarTareas(S.clienteActivo.id);
+    actualizarDashTareas();
+    toast('Tarea eliminada', 'success');
+  } catch(e) { toast('Error al eliminar', 'error'); }
+};
+
+window.toggleTarea = async function(id) {
+  const t = S.tareas.find(x => x.id === id);
+  if (!t) return;
+  const nuevoEstado = t.estado === 'Hecha' ? 'Pendiente' : 'Hecha';
+  await updateDoc(doc(db, 'tareas', id), { estado: nuevoEstado });
+  await cargarTareas(S.clienteActivo.id);
+  actualizarDashTareas();
+};
+
+async function actualizarDashTareas() {
+  // Cargar todas las tareas pendientes de todos los clientes para el dashboard
+  const snap = await getDocs(collection(db, 'tareas'));
+  const todasTareas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const pendientes = todasTareas
+    .filter(t => t.estado !== 'Hecha')
+    .sort((a,b) => (a.fecha||'9999').localeCompare(b.fecha||'9999'))
+    .slice(0, 6);
+
+  const el = document.getElementById('dash-tareas');
+  if (!el) return;
+
+  if (!pendientes.length) {
+    el.innerHTML = '<div class="dash-empty">Sin tareas pendientes 🎉</div>';
+    return;
+  }
+
+  const hoyStr = toDateStr(new Date());
+  el.innerHTML = pendientes.map(t => {
+    const cliente = S.clientes.find(c => c.id === t.clienteId);
+    const vencida = t.fecha && t.fecha < hoyStr;
+    const esHoy = t.fecha === hoyStr;
+    return `
+    <div class="dash-tarea-item" onclick="seleccionarCliente('${t.clienteId}')">
+      <div class="dash-tarea-check" style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : 'var(--gris-claro)'}"></div>
+      <div class="dash-tarea-info">
+        <div class="dash-tarea-titulo">${t.titulo}</div>
+        <div class="dash-tarea-meta">
+          ${cliente ? cliente.nombre + ' · ' : ''}
+          ${t.fecha ? (vencida ? '⚠️ Vencida · ' : esHoy ? '🔥 Hoy · ' : '') + formatFecha(t.fecha) : 'Sin fecha'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ─── INIT ───
 window.addEventListener('load', () => {
