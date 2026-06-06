@@ -3865,48 +3865,63 @@ window.editarTareaGeneral = function(id) {
 };
 
 async function actualizarDashTareas() {
-  // Cargar todas las tareas pendientes de todos los clientes para el dashboard
   const snap = await getDocs(collection(db, 'tareas'));
   const todasTareas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const hoyStr = toDateStr(new Date());
+
   const pendientes = todasTareas
     .filter(t => t.estado !== 'Hecha')
-    .sort((a,b) => (a.fecha||'9999').localeCompare(b.fecha||'9999'))
-    .slice(0, 8);
+    .sort((a,b) => (a.fecha||'9999').localeCompare(b.fecha||'9999'));
+
+  const hechas = todasTareas
+    .filter(t => t.estado === 'Hecha')
+    .sort((a,b) => (b.updatedAt||'').localeCompare(a.updatedAt||''))
+    .slice(0, 6);
 
   const el = document.getElementById('dash-tareas');
   if (!el) return;
 
-  if (!pendientes.length) {
-    el.innerHTML = '<div class="dash-empty" style="text-align:center;padding:16px;"><span class="material-symbols-rounded" style="font-size:1.5rem;display:block;margin-bottom:4px;color:#22c55e">task_alt</span>Sin tareas pendientes</div>';
-    return;
-  }
-
-  const hoyStr = toDateStr(new Date());
-  el.innerHTML = pendientes.map(t => {
+  const renderItem = (t) => {
     const cliente = S.clientes.find(c => c.id === t.clienteId);
-    const vencida = t.fecha && t.fecha < hoyStr;
+    const vencida = t.fecha && t.fecha < hoyStr && t.estado !== 'Hecha';
     const esHoy = t.fecha === hoyStr;
-    return `
-    <div class="dash-tarea-item">
-      <div class="dash-tarea-check" 
-        onclick="event.stopPropagation(); toggleTareaGeneral('${t.id}', '${t.estado}')"
-        style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : t.estado === 'Hecha' ? '#22c55e' : 'var(--gris-claro)'}; background:${t.estado === 'Hecha' ? '#22c55e' : 'transparent'}; cursor:pointer; -webkit-tap-highlight-color:transparent;">
-        ${t.estado === 'Hecha' ? '<span class="material-symbols-rounded" style="font-size:11px;color:white">check</span>' : ''}
+    const checkColor = t.estado === 'Hecha' ? '#22c55e' : t.estado === 'En progreso' ? 'var(--morado)' : 'var(--gris-claro)';
+    return `<div class="dash-tarea-item">
+      <div class="dash-tarea-check" data-id="${t.id}"
+        onclick="event.stopPropagation();toggleTareaGeneral(this.dataset.id)"
+        style="border-color:${checkColor};background:${t.estado==='Hecha'?'#22c55e':'transparent'};cursor:pointer;">
+        ${t.estado==='Hecha'?'<span class="material-symbols-rounded" style="font-size:11px;color:white">check</span>':''}
       </div>
-      <div style="flex:1;min-width:0;" onclick="${t.clienteId ? `seleccionarCliente('${t.clienteId}')` : `editarTareaGeneral('${t.id}')`}">
-      <div class="dash-tarea-info">
-        <div class="dash-tarea-titulo" style="${t.estado === 'Hecha' ? 'text-decoration:line-through;color:var(--gris)' : ''}">${t.titulo}</div>
-        ${t.nota ? `<div class="dash-tarea-nota">${t.nota}</div>` : ''}
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="${t.clienteId?`seleccionarCliente('${t.clienteId}')`:`editarTareaGeneral('${t.id}')`}">
+        <div class="dash-tarea-titulo" style="${t.estado==='Hecha'?'text-decoration:line-through;color:var(--gris)':''}">${t.titulo}</div>
+        ${t.nota?`<div class="dash-tarea-nota">${t.nota}</div>`:''}
         <div class="dash-tarea-meta">
-          <span class="dash-tarea-cliente-badge ${t.clienteId ? '' : 'general'}">
-            <span class="material-symbols-rounded" style="font-size:10px">${t.clienteId ? 'person' : 'label'}</span>
-            ${t.clienteId ? (cliente ? cliente.nombre : '—') : 'General'}
+          <span class="dash-tarea-cliente-badge ${t.clienteId?'':'general'}">
+            <span class="material-symbols-rounded" style="font-size:10px">${t.clienteId?'person':'label'}</span>
+            ${t.clienteId?(cliente?cliente.nombre:'—'):'General'}
           </span>
-          ${t.fecha ? `<span>${vencida ? '<span class="material-symbols-rounded" style="font-size:11px;color:var(--rojo-coral)">warning</span>' : esHoy ? '<span class="material-symbols-rounded" style="font-size:11px;color:#b8a000">local_fire_department</span>' : ''} ${formatFecha(t.fecha)}</span>` : ''}
+          ${t.fecha?`<span>${vencida?'<span class="material-symbols-rounded" style="font-size:11px;color:var(--rojo-coral)">warning</span>':esHoy?'<span class="material-symbols-rounded" style="font-size:11px;color:#b8a000">local_fire_department</span>':''} ${formatFecha(t.fecha)}</span>`:''}
         </div>
       </div>
     </div>`;
-  }).join('');
+  };
+
+  let html = '';
+
+  if (!pendientes.length) {
+    html += '<div class="dash-empty" style="text-align:center;padding:12px 0;"><span class="material-symbols-rounded" style="font-size:1.2rem;display:block;margin-bottom:4px;color:#22c55e">task_alt</span>Sin tareas pendientes</div>';
+  } else {
+    html += `<div class="dash-tareas-grid">${pendientes.map(renderItem).join('')}</div>`;
+  }
+
+  if (hechas.length) {
+    html += `<div style="margin-top:16px;border-top:1px solid var(--crema-oscuro);padding-top:12px;">
+      <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-bottom:8px;">Completadas (${todasTareas.filter(t=>t.estado==='Hecha').length})</div>
+      <div class="dash-tareas-grid">${hechas.map(renderItem).join('')}</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 // ─── INIT ───
