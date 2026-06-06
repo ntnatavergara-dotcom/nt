@@ -680,7 +680,7 @@
   .pub-card {
     background: var(--blanco);
     border-radius: var(--radio);
-    padding: 18px;
+    padding: 12px 14px;
     box-shadow: var(--sombra);
     transition: all 0.2s;
     cursor: pointer;
@@ -694,7 +694,7 @@
   }
   .pub-card-top {
     display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
   .pub-tipo-badge {
     display: inline-flex; align-items: center; gap: 5px;
@@ -732,26 +732,30 @@
 
   .pub-titulo-card {
     font-family: 'Karla', sans-serif;
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     line-height: 1.3;
-  }
-  .pub-caption {
-    font-size: 0.82rem;
-    color: var(--gris);
-    line-height: 1.5;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    margin-bottom: 12px;
+  }
+  .pub-caption {
+    font-size: 0.78rem;
+    color: var(--gris);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 8px;
   }
   .pub-meta {
     display: flex; justify-content: space-between; align-items: center;
-    padding-top: 10px;
+    padding-top: 6px;
     border-top: 1px solid var(--crema-oscuro);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     color: var(--gris);
   }
   .pub-meta-left { display: flex; align-items: center; gap: 8px; }
@@ -2595,7 +2599,7 @@ function renderPubs() {
     </div>`;
     return;
   }
-  const sorted = [...pubs].sort((a,b) => (a.fecha||'').localeCompare(b.fecha||''));
+  const sorted = [...pubs].sort((a,b) => { const f = (a.fecha||'9999').localeCompare(b.fecha||'9999'); if (f !== 0) return f; return (a.hora||'').localeCompare(b.hora||''); });
   grid.innerHTML = sorted.map(p => {
     const tipoClass = `tipo-${p.tipo?.toLowerCase()}`;
     const estadoClass = `estado-${ESTADOS[p.estado] || 'idea'}`;
