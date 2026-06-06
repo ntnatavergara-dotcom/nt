@@ -1542,7 +1542,16 @@
   }
   .dash-tarea-info { flex: 1; min-width: 0; }
   .dash-tarea-titulo { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dash-tarea-meta { font-size: 0.7rem; color: var(--gris); margin-top: 1px; }
+  .dash-tarea-meta { font-size: 0.7rem; color: var(--gris); margin-top: 4px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .dash-tarea-cliente-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 1px 7px; border-radius: 20px;
+    font-size: 0.65rem; font-weight: 700;
+    background: rgba(131,95,253,0.1); color: var(--morado);
+  }
+  .dash-tarea-cliente-badge.general {
+    background: var(--crema-oscuro); color: var(--gris);
+  }
 
   /* ─── TOAST ─── */
   .toast {
@@ -2006,6 +2015,9 @@
               <span class="material-symbols-rounded" style="font-size:18px;color:var(--morado)">task_alt</span>
               Tareas pendientes
             </div>
+            <button class="btn-add-pub" style="padding:5px 12px;font-size:0.78rem;" onclick="abrirModalTareaGeneral()">
+              <span class="material-symbols-rounded" style="font-size:16px">add</span> Nueva tarea
+            </button>
           </div>
           <div id="dash-tareas"></div>
         </div>
@@ -3692,6 +3704,7 @@ function renderTareas() {
 window.abrirModalTarea = function() {
   window._editandoTareaId = null;
   window._estadoTarea = 'Pendiente';
+  window._tareaEsGeneral = false;
   document.getElementById('tarea-titulo').value = '';
   document.getElementById('tarea-nota').value = '';
   document.getElementById('tarea-fecha').value = '';
@@ -3733,8 +3746,9 @@ window.selEstadoTarea = function(el) {
 window.guardarTarea = async function() {
   const titulo = document.getElementById('tarea-titulo').value.trim();
   if (!titulo) { toast('El título es obligatorio', 'error'); return; }
+  const esGeneral = window._tareaEsGeneral && !S.clienteActivo;
   const data = {
-    clienteId: S.clienteActivo.id,
+    clienteId: esGeneral ? null : (S.clienteActivo ? S.clienteActivo.id : null),
     titulo,
     nota: document.getElementById('tarea-nota').value.trim(),
     fecha: document.getElementById('tarea-fecha').value,
@@ -3776,6 +3790,50 @@ window.toggleTarea = async function(id) {
   actualizarDashTareas();
 };
 
+window.abrirModalTareaGeneral = function() {
+  window._editandoTareaId = null;
+  window._estadoTarea = 'Pendiente';
+  window._tareaEsGeneral = true;
+  document.getElementById('tarea-titulo').value = '';
+  document.getElementById('tarea-nota').value = '';
+  document.getElementById('tarea-fecha').value = '';
+  document.getElementById('modal-tarea-titulo').textContent = 'Nueva tarea general';
+  document.getElementById('btn-eliminar-tarea').style.display = 'none';
+  document.querySelectorAll('#tarea-estado-selector .estado-option').forEach(b => {
+    b.className = 'estado-option';
+    if (b.dataset.estado === 'Pendiente') b.classList.add('sel-idea');
+  });
+  document.getElementById('modal-tarea').classList.add('open');
+};
+
+window.editarTareaGeneral = function(id) {
+  window._tareaEsGeneral = true;
+  // Buscar en todas las tareas cargadas o recargar
+  // Abrimos el modal de edición directamente
+  const snap_temp = { id };
+  // Cargar desde Firestore
+  import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(({ getDoc, doc: firestoreDoc }) => {
+    getDoc(firestoreDoc(db, 'tareas', id)).then(d => {
+      if (!d.exists()) return;
+      const t = { id: d.id, ...d.data() };
+      window._editandoTareaId = id;
+      window._estadoTarea = t.estado;
+      document.getElementById('tarea-titulo').value = t.titulo || '';
+      document.getElementById('tarea-nota').value = t.nota || '';
+      document.getElementById('tarea-fecha').value = t.fecha || '';
+      document.getElementById('modal-tarea-titulo').textContent = 'Editar tarea';
+      document.getElementById('btn-eliminar-tarea').style.display = 'flex';
+      document.querySelectorAll('#tarea-estado-selector .estado-option').forEach(b => {
+        b.className = 'estado-option';
+        if (b.dataset.estado === t.estado) {
+          b.classList.add(t.estado === 'Hecha' ? 'sel-listo' : t.estado === 'En progreso' ? 'sel-produccion' : 'sel-idea');
+        }
+      });
+      document.getElementById('modal-tarea').classList.add('open');
+    });
+  });
+};
+
 async function actualizarDashTareas() {
   // Cargar todas las tareas pendientes de todos los clientes para el dashboard
   const snap = await getDocs(collection(db, 'tareas'));
@@ -3799,13 +3857,18 @@ async function actualizarDashTareas() {
     const vencida = t.fecha && t.fecha < hoyStr;
     const esHoy = t.fecha === hoyStr;
     return `
-    <div class="dash-tarea-item" onclick="seleccionarCliente('${t.clienteId}')">
-      <div class="dash-tarea-check" style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : 'var(--gris-claro)'}"></div>
+    <div class="dash-tarea-item" onclick="${t.clienteId ? `seleccionarCliente('${t.clienteId}')` : `editarTareaGeneral('${t.id}')`}">
+      <div class="dash-tarea-check" style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : 'var(--gris-claro)'}; background:${t.estado === 'Hecha' ? '#22c55e' : 'transparent'}">
+        ${t.estado === 'Hecha' ? '<span class="material-symbols-rounded" style="font-size:11px;color:white">check</span>' : ''}
+      </div>
       <div class="dash-tarea-info">
-        <div class="dash-tarea-titulo">${t.titulo}</div>
+        <div class="dash-tarea-titulo" style="${t.estado === 'Hecha' ? 'text-decoration:line-through;color:var(--gris)' : ''}">${t.titulo}</div>
         <div class="dash-tarea-meta">
-          ${cliente ? cliente.nombre + ' · ' : ''}
-          ${t.fecha ? (vencida ? '<span class="material-symbols-rounded" style="font-size:11px;color:var(--rojo-coral)">warning</span> Vencida · ' : esHoy ? '<span class="material-symbols-rounded" style="font-size:11px;color:#b8a000">local_fire_department</span> Hoy · ' : '') + formatFecha(t.fecha) : 'Sin fecha'}
+          <span class="dash-tarea-cliente-badge ${t.clienteId ? '' : 'general'}">
+            <span class="material-symbols-rounded" style="font-size:10px">${t.clienteId ? 'person' : 'label'}</span>
+            ${t.clienteId ? (cliente ? cliente.nombre : '—') : 'General'}
+          </span>
+          ${t.fecha ? `<span>${vencida ? '<span class="material-symbols-rounded" style="font-size:11px;color:var(--rojo-coral)">warning</span>' : esHoy ? '<span class="material-symbols-rounded" style="font-size:11px;color:#b8a000">local_fire_department</span>' : ''} ${formatFecha(t.fecha)}</span>` : ''}
         </div>
       </div>
     </div>`;
