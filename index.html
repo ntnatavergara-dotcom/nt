@@ -1543,6 +1543,7 @@
   .dash-tarea-info { flex: 1; min-width: 0; }
   .dash-tarea-titulo { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .dash-tarea-meta { font-size: 0.7rem; color: var(--gris); margin-top: 4px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .dash-tarea-nota { font-size: 0.75rem; color: var(--gris); margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
   .dash-tarea-cliente-badge {
     display: inline-flex; align-items: center; gap: 3px;
     padding: 1px 7px; border-radius: 20px;
@@ -3863,6 +3864,7 @@ async function actualizarDashTareas() {
       </div>
       <div class="dash-tarea-info">
         <div class="dash-tarea-titulo" style="${t.estado === 'Hecha' ? 'text-decoration:line-through;color:var(--gris)' : ''}">${t.titulo}</div>
+        ${t.nota ? `<div class="dash-tarea-nota">${t.nota}</div>` : ''}
         <div class="dash-tarea-meta">
           <span class="dash-tarea-cliente-badge ${t.clienteId ? '' : 'general'}">
             <span class="material-symbols-rounded" style="font-size:10px">${t.clienteId ? 'person' : 'label'}</span>
