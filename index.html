@@ -1530,6 +1530,20 @@
   }
 
   /* Dashboard tareas widget */
+  .dash-tareas-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  @media (min-width: 600px) {
+    .dash-tareas-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 0 24px;
+    }
+    .dash-tarea-item {
+      border-bottom: 1px solid var(--crema-oscuro) !important;
+    }
+  }
   .dash-tarea-item {
     display: flex; align-items: flex-start; gap: 10px;
     padding: 8px 0; border-bottom: 1px solid var(--crema-oscuro);
@@ -2020,7 +2034,7 @@
               <span class="material-symbols-rounded" style="font-size:16px">add</span> Nueva tarea
             </button>
           </div>
-          <div id="dash-tareas"></div>
+          <div id="dash-tareas" class="dash-tareas-grid"></div>
         </div>
 
         <!-- Dos columnas: próximas + calendario -->
@@ -3842,7 +3856,7 @@ async function actualizarDashTareas() {
   const pendientes = todasTareas
     .filter(t => t.estado !== 'Hecha')
     .sort((a,b) => (a.fecha||'9999').localeCompare(b.fecha||'9999'))
-    .slice(0, 6);
+    .slice(0, 8);
 
   const el = document.getElementById('dash-tareas');
   if (!el) return;
