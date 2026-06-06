@@ -2034,7 +2034,7 @@
               <span class="material-symbols-rounded" style="font-size:16px">add</span> Nueva tarea
             </button>
           </div>
-          <div id="dash-tareas" class="dash-tareas-grid"></div>
+          <div id="dash-tareas"></div>
         </div>
 
         <!-- Dos columnas: próximas + calendario -->
@@ -3805,13 +3805,19 @@ window.toggleTarea = async function(id) {
   actualizarDashTareas();
 };
 
-window.toggleTareaGeneral = async function(id, estadoActual) {
-  const nuevoEstado = estadoActual === 'Hecha' ? 'Pendiente' : 'Hecha';
+window.toggleTareaGeneral = async function(id) {
   try {
+    const snap = await getDocs(query(collection(db, 'tareas'), where('__name__', '==', id)));
+    // Usar getDoc directamente
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const docSnap = await getDoc(doc(db, 'tareas', id));
+    if (!docSnap.exists()) return;
+    const estadoActual = docSnap.data().estado;
+    const nuevoEstado = estadoActual === 'Hecha' ? 'Pendiente' : 'Hecha';
     await updateDoc(doc(db, 'tareas', id), { estado: nuevoEstado, updatedAt: new Date().toISOString() });
     if (S.clienteActivo) await cargarTareas(S.clienteActivo.id);
     actualizarDashTareas();
-  } catch(e) { toast('Error al actualizar', 'error'); }
+  } catch(e) { toast('Error al actualizar', 'error'); console.error(e); }
 };
 
 window.abrirModalTareaGeneral = function() {
