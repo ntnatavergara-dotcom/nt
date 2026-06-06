@@ -3765,7 +3765,7 @@ window.guardarTarea = async function() {
       toast('Tarea creada ✓', 'success');
     }
     cerrarModal('modal-tarea');
-    await cargarTareas(S.clienteActivo.id);
+    if (S.clienteActivo) await cargarTareas(S.clienteActivo.id);
     actualizarDashTareas();
   } catch(e) { toast('Error al guardar', 'error'); console.error(e); }
 };
@@ -3775,7 +3775,7 @@ window.eliminarTarea = async function() {
   try {
     await deleteDoc(doc(db, 'tareas', window._editandoTareaId));
     cerrarModal('modal-tarea');
-    await cargarTareas(S.clienteActivo.id);
+    if (S.clienteActivo) await cargarTareas(S.clienteActivo.id);
     actualizarDashTareas();
     toast('Tarea eliminada', 'success');
   } catch(e) { toast('Error al eliminar', 'error'); }
@@ -3786,7 +3786,7 @@ window.toggleTarea = async function(id) {
   if (!t) return;
   const nuevoEstado = t.estado === 'Hecha' ? 'Pendiente' : 'Hecha';
   await updateDoc(doc(db, 'tareas', id), { estado: nuevoEstado });
-  await cargarTareas(S.clienteActivo.id);
+  if (S.clienteActivo) await cargarTareas(S.clienteActivo.id);
   actualizarDashTareas();
 };
 
