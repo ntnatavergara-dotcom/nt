@@ -2507,7 +2507,7 @@ function renderSidebar() {
           <div class="cliente-estado-dot ${estaActivo ? 'activo' : 'inactivo'}"></div>
           <span class="cliente-estado-label ${estaActivo ? 'activo' : 'inactivo'}">${estaActivo ? 'Activo' : 'Inactivo'}</span>
         </div>
-      </div>
+      </div></div>
     </div>`;
   }).join('');
 }
@@ -3805,6 +3805,15 @@ window.toggleTarea = async function(id) {
   actualizarDashTareas();
 };
 
+window.toggleTareaGeneral = async function(id, estadoActual) {
+  const nuevoEstado = estadoActual === 'Hecha' ? 'Pendiente' : 'Hecha';
+  try {
+    await updateDoc(doc(db, 'tareas', id), { estado: nuevoEstado, updatedAt: new Date().toISOString() });
+    if (S.clienteActivo) await cargarTareas(S.clienteActivo.id);
+    actualizarDashTareas();
+  } catch(e) { toast('Error al actualizar', 'error'); }
+};
+
 window.abrirModalTareaGeneral = function() {
   window._editandoTareaId = null;
   window._estadoTarea = 'Pendiente';
@@ -3872,10 +3881,13 @@ async function actualizarDashTareas() {
     const vencida = t.fecha && t.fecha < hoyStr;
     const esHoy = t.fecha === hoyStr;
     return `
-    <div class="dash-tarea-item" onclick="${t.clienteId ? `seleccionarCliente('${t.clienteId}')` : `editarTareaGeneral('${t.id}')`}">
-      <div class="dash-tarea-check" style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : 'var(--gris-claro)'}; background:${t.estado === 'Hecha' ? '#22c55e' : 'transparent'}">
+    <div class="dash-tarea-item">
+      <div class="dash-tarea-check" 
+        onclick="event.stopPropagation(); toggleTareaGeneral('${t.id}', '${t.estado}')"
+        style="border-color:${t.estado === 'En progreso' ? 'var(--morado)' : t.estado === 'Hecha' ? '#22c55e' : 'var(--gris-claro)'}; background:${t.estado === 'Hecha' ? '#22c55e' : 'transparent'}; cursor:pointer; -webkit-tap-highlight-color:transparent;">
         ${t.estado === 'Hecha' ? '<span class="material-symbols-rounded" style="font-size:11px;color:white">check</span>' : ''}
       </div>
+      <div style="flex:1;min-width:0;" onclick="${t.clienteId ? `seleccionarCliente('${t.clienteId}')` : `editarTareaGeneral('${t.id}')`}">
       <div class="dash-tarea-info">
         <div class="dash-tarea-titulo" style="${t.estado === 'Hecha' ? 'text-decoration:line-through;color:var(--gris)' : ''}">${t.titulo}</div>
         ${t.nota ? `<div class="dash-tarea-nota">${t.nota}</div>` : ''}
