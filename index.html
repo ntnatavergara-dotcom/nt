@@ -39,6 +39,7 @@
     --gris: #8a8a8a;
     --gris-claro: #e8e0d8;
     --rojo-coral: #FF5C5C;
+    --rosa-web: #FF6B9D;
     --azul: #4A90D9;
     --stories-morado: #835FFD;
     --dorado: #F5A623;
@@ -709,7 +710,7 @@
   .tipo-post { background: rgba(74,144,217,0.12); color: var(--azul); }
   .tipo-stories { background: rgba(131,95,253,0.12); color: var(--morado); }
   .tipo-carrusel { background: rgba(245,166,35,0.12); color: var(--dorado); }
-  .tipo-web { background: rgba(34,197,94,0.12); color: #166534; }
+  .tipo-web { background: rgba(255,107,157,0.12); color: #c0356e; }
 
   .pub-estado {
     display: inline-flex; align-items: center; gap: 4px;
@@ -893,6 +894,7 @@
   .cal-pub-post { background: rgba(74,144,217,0.15); color: #1a5276; border-left: 3px solid var(--azul); }
   .cal-pub-stories { background: rgba(131,95,253,0.15); color: #5b2fc9; border-left: 3px solid var(--morado); }
   .cal-pub-carrusel { background: rgba(245,166,35,0.15); color: #935a00; border-left: 3px solid var(--dorado); }
+  .cal-pub-web { background: rgba(255,107,157,0.15); color: #c0356e; border-left: 3px solid #FF6B9D; }
 
   /* ─── MODAL ─── */
   .modal-overlay {
@@ -2464,7 +2466,7 @@ const TIPOS = {
   Post:     { color: '#4A90D9', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
   Stories:  { color: '#835FFD', medida: '1080 × 1920 px', label: 'Vertical · 9:16' },
   Carrusel: { color: '#F5A623', medida: '1080 × 1350 px', label: 'Retrato · 4:5' },
-  Web:      { color: '#22c55e', medida: 'Artículo web', label: 'Blog / SEO' },
+  Web:      { color: '#FF6B9D', medida: 'Artículo web', label: 'Blog / SEO' },
 };
 const ESTADOS = {
   'Idea': 'idea', 'Producción': 'produccion', 'Listo': 'listo', 'Publicado': 'publicado'
@@ -2750,6 +2752,7 @@ function renderCalendarioSemana() {
       <div class="leyenda-item"><div class="leyenda-dot" style="background:#4A90D9"></div>Post</div>
       <div class="leyenda-item"><div class="leyenda-dot" style="background:#835FFD"></div>Stories</div>
       <div class="leyenda-item"><div class="leyenda-dot" style="background:#F5A623"></div>Carrusel</div>
+      <div class="leyenda-item"><div class="leyenda-dot" style="background:#FF6B9D"></div>Web</div>
     </div>
   </div>
   <div class="cal-grid">
@@ -2895,7 +2898,7 @@ function renderPanelDerecho() {
     .sort((a, b) => a.fecha.localeCompare(b.fecha))
     .slice(0, 5);
 
-  const coloresTipo = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+  const coloresTipo = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623', Web: '#FF6B9D' };
 
   document.getElementById('pd-proximas').innerHTML = proximas.length
     ? proximas.map(p => `
@@ -3015,7 +3018,7 @@ function renderHistorial() {
 }
 
 function tipoColor(tipo) {
-  return { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' }[tipo] || 'var(--negro)';
+  return { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623', Web: '#FF6B9D' }[tipo] || 'var(--negro)';
 }
 
 function formatFechaLarga(f) {
@@ -3449,7 +3452,7 @@ function renderProximasBanner() {
 
   const hoy = new Date();
   const hoyStr = toDateStr(hoy);
-  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623', Web: '#FF6B9D' };
 
   const proximas = S.publicaciones
     .filter(p => p.fecha >= hoyStr && p.estado === 'Listo')
@@ -3483,7 +3486,7 @@ async function renderDashboard() {
   const mes = hoy.getMonth() + 1;
   const año = hoy.getFullYear();
   const hoyStr = toDateStr(hoy);
-  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623', Web: '#FF6B9D' };
 
   // Stats de clientes
   const clientesActivos = S.clientes.filter(c => c.activo !== false);
@@ -3559,7 +3562,7 @@ function renderDashCalendario(todasPubs) {
   const el = document.getElementById('dash-calendario');
   if (!el) return;
 
-  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623' };
+  const colores = { Reel: '#FF5C5C', Post: '#4A90D9', Stories: '#835FFD', Carrusel: '#F5A623', Web: '#FF6B9D' };
 
   // Poblar filtro con clientes activos
   const filtroEl = document.getElementById('dash-cal-filtro');
