@@ -3154,9 +3154,11 @@ window.abrirModalPub = function() {
   limpiarFormPub();
   document.getElementById('modal-pub-titulo').textContent = 'Nueva publicación';
   document.getElementById('btn-eliminar-pub').style.display = 'none';
-  // Fecha de hoy por defecto
   const hoy = new Date();
   document.getElementById('pub-fecha').value = toDateStr(hoy);
+  // Preseleccionar Red social por defecto
+  const primeraOpcion = document.querySelector('.canal-option[data-canal="redes"]');
+  if (primeraOpcion) selCanal(primeraOpcion);
   document.getElementById('modal-pub').classList.add('open');
 };
 
@@ -3233,23 +3235,42 @@ function limpiarFormPub() {
 }
 
 window.guardarPub = async function() {
-  const titulo = document.getElementById('pub-titulo') ? document.getElementById('pub-titulo').value.trim() : '';
   if (!window._canalSeleccionado) { toast('Selecciona un canal (Red social o Web)', 'error'); return; }
-  if (window._canalSeleccionado === 'redes' && !S.tipoSeleccionado) { toast('Selecciona el tipo de publicación', 'error'); return; }
+
+  const esWeb = window._canalSeleccionado === 'web';
+
+  if (esWeb) {
+    const tituloWeb = document.getElementById('pub-titulo-web').value.trim();
+    if (!tituloWeb) { toast('El título es obligatorio', 'error'); return; }
+  } else {
+    const tituloRedes = document.getElementById('pub-titulo').value.trim();
+    if (!tituloRedes) { toast('El título es obligatorio', 'error'); return; }
+    if (!S.tipoSeleccionado) { toast('Selecciona el tipo de publicación', 'error'); return; }
+  }
+
   const data = {
     clienteId: S.clienteActivo.id,
-    tipo: S.tipoSeleccionado,
-    titulo,
-    red: document.getElementById('pub-red').value,
+    canal: window._canalSeleccionado,
+    tipo: esWeb ? 'Web' : S.tipoSeleccionado,
+    titulo: esWeb
+      ? document.getElementById('pub-titulo-web').value.trim()
+      : document.getElementById('pub-titulo').value.trim(),
+    red: esWeb ? '' : document.getElementById('pub-red').value,
     fecha: document.getElementById('pub-fecha').value,
     hora: document.getElementById('pub-hora').value,
     estado: S.estadoSeleccionado,
-    visual: document.getElementById('pub-visual').value.trim(),
-    textos: document.getElementById('pub-textos').value.trim(),
-    caption: document.getElementById('pub-caption').value.trim(),
-    hashtags: document.getElementById('pub-hashtags').value.trim(),
+    visual: esWeb ? '' : document.getElementById('pub-visual').value.trim(),
+    textos: esWeb ? '' : document.getElementById('pub-textos').value.trim(),
+    caption: esWeb ? '' : document.getElementById('pub-caption').value.trim(),
+    hashtags: esWeb ? '' : document.getElementById('pub-hashtags').value.trim(),
+    seoTitulo: esWeb ? document.getElementById('pub-seo-titulo').value.trim() : '',
+    seoDesc: esWeb ? document.getElementById('pub-seo-desc').value.trim() : '',
+    imgTitulo: esWeb ? document.getElementById('pub-img-titulo').value.trim() : '',
+    articulo: esWeb ? document.getElementById('pub-articulo').value.trim() : '',
+    diseno: document.getElementById('pub-diseno').value.trim(),
     updatedAt: new Date().toISOString(),
   };
+
   try {
     if (S.editandoPubId) {
       await updateDoc(doc(db, 'publicaciones', S.editandoPubId), data);
