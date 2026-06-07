@@ -3196,19 +3196,23 @@ window.abrirModalPub = function() {
   const primeraOpcion = document.querySelector('.canal-option[data-canal="redes"]');
   if (primeraOpcion) selCanal(primeraOpcion);
   document.getElementById('modal-pub').classList.add('open');
+  } catch(e) { console.error('Error en editarPub:', e); alert('Error: ' + e.message); }
 };
 
 window.editarPub = function(id) {
+  try {
   const p = S.publicaciones.find(x => x.id === id);
-  if (!p) return;
+  if (!p) { console.error('Pub no encontrada:', id); return; }
   S.editandoPubId = id;
   S.tipoSeleccionado = p.tipo;
   S.estadoSeleccionado = p.estado || 'Idea';
   limpiarFormPub();
   document.getElementById('modal-pub-titulo').textContent = 'Editar publicación';
   document.getElementById('btn-eliminar-pub').style.display = 'flex';
-  document.getElementById('pub-titulo').value = p.titulo || '';
-  document.getElementById('pub-red').value = p.red || '';
+  const elTitulo = document.getElementById('pub-titulo');
+  if (elTitulo) elTitulo.value = p.titulo || '';
+  const elRed = document.getElementById('pub-red');
+  if (elRed) elRed.value = p.red || '';
   document.getElementById('pub-fecha').value = p.fecha || '';
   document.getElementById('pub-hora').value = p.hora || '10:00';
   document.getElementById('pub-visual').value = p.visual || '';
