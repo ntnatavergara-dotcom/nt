@@ -2337,6 +2337,14 @@
           <label class="form-label">Texto del artículo</label>
           <textarea class="form-textarea" id="pub-articulo" style="min-height:140px" placeholder="Contenido completo del artículo..."></textarea>
         </div>
+        <div class="form-group">
+          <label class="form-label">Link de la nota publicada</label>
+          <div style="position:relative;">
+            <input type="url" class="form-input" id="pub-link-nota" placeholder="https://..." style="padding-right:44px;">
+            <span class="material-symbols-rounded" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--gris);font-size:18px;pointer-events:none;">open_in_new</span>
+          </div>
+          <p class="form-hint">URL donde está publicada la nota.</p>
+        </div>
       </div>
 
       <!-- CAMPOS COMUNES -->
@@ -3196,13 +3204,11 @@ window.abrirModalPub = function() {
   const primeraOpcion = document.querySelector('.canal-option[data-canal="redes"]');
   if (primeraOpcion) selCanal(primeraOpcion);
   document.getElementById('modal-pub').classList.add('open');
-  } catch(e) { console.error('Error en editarPub:', e); alert('Error: ' + e.message); }
 };
 
 window.editarPub = function(id) {
-  try {
   const p = S.publicaciones.find(x => x.id === id);
-  if (!p) { console.error('Pub no encontrada:', id); return; }
+  if (!p) return;
   S.editandoPubId = id;
   S.tipoSeleccionado = p.tipo;
   S.estadoSeleccionado = p.estado || 'Idea';
