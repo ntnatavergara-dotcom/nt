@@ -2621,6 +2621,10 @@ function renderPubs() {
         </div>
         <span>${p.fecha ? formatFecha(p.fecha) : 'Sin fecha'} ${p.hora ? '· ' + formatHora(p.hora) : ''}</span>
       </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        ${p.linkNota ? `<a href="${p.linkNota}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,107,157,0.1);color:#c0356e;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">open_in_new</span> Ver nota</a>` : ''}
+        ${p.diseno ? `<a href="${p.diseno}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(131,95,253,0.1);color:var(--morado);border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">link</span> Ver diseño</a>` : ''}
+      </div>
     </div>`;
   }).join('');
 }
@@ -3230,6 +3234,7 @@ window.editarPub = function(id) {
     document.getElementById('pub-seo-desc').value = p.seoDesc || '';
     document.getElementById('pub-img-titulo').value = p.imgTitulo || '';
     document.getElementById('pub-articulo').value = p.articulo || '';
+    document.getElementById('pub-link-nota').value = p.linkNota || '';
     contarChars('pub-seo-titulo','contador-seo-titulo',60);
     contarChars('pub-seo-desc','contador-seo-desc',160);
   }
@@ -3249,7 +3254,7 @@ window.editarPub = function(id) {
 
 function limpiarFormPub() {
   ['pub-titulo','pub-visual','pub-textos','pub-caption','pub-hashtags','pub-diseno',
-   'pub-titulo-web','pub-seo-titulo','pub-seo-desc','pub-img-titulo','pub-articulo'].forEach(id => {
+   'pub-titulo-web','pub-seo-titulo','pub-seo-desc','pub-img-titulo','pub-articulo','pub-link-nota'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -3302,6 +3307,7 @@ window.guardarPub = async function() {
     seoDesc: esWeb ? document.getElementById('pub-seo-desc').value.trim() : '',
     imgTitulo: esWeb ? document.getElementById('pub-img-titulo').value.trim() : '',
     articulo: esWeb ? document.getElementById('pub-articulo').value.trim() : '',
+    linkNota: esWeb ? document.getElementById('pub-link-nota').value.trim() : '',
     diseno: document.getElementById('pub-diseno').value.trim(),
     updatedAt: new Date().toISOString(),
   };
