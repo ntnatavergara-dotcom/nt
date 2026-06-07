@@ -2621,10 +2621,10 @@ function renderPubs() {
         </div>
         <span>${p.fecha ? formatFecha(p.fecha) : 'Sin fecha'} ${p.hora ? '· ' + formatHora(p.hora) : ''}</span>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
-        ${p.linkNota ? `<a href="${p.linkNota}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,107,157,0.1);color:#c0356e;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">open_in_new</span> Ver nota</a>` : ''}
-        ${p.diseno ? `<a href="${p.diseno}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(131,95,253,0.1);color:var(--morado);border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">link</span> Ver diseño</a>` : ''}
-      </div>
+      ${(p.linkNota || p.diseno) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;" onclick="event.stopPropagation()">
+        ${p.linkNota ? `<a href="${p.linkNota}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,107,157,0.1);color:#c0356e;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">open_in_new</span> Ver nota</a>` : ''}
+        ${p.diseno ? `<a href="${p.diseno}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(131,95,253,0.1);color:var(--morado);border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;"><span class="material-symbols-rounded" style="font-size:13px">link</span> Ver diseño</a>` : ''}
+      </div>` : ''}
     </div>`;
   }).join('');
 }
