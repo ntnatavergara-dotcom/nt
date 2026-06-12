@@ -677,6 +677,78 @@
     gap: 16px;
   }
 
+  /* ─── KANBAN ─── */
+  .kanban-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .kanban-col {
+    min-width: 0;
+  }
+  .kanban-col-header {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--gris);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--gris-claro);
+  }
+  .kanban-count {
+    background: var(--crema-oscuro);
+    color: var(--negro);
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    margin-left: auto;
+  }
+  .kanban-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .kanban-empty {
+    text-align: center;
+    color: var(--gris);
+    font-size: 0.82rem;
+    padding: 24px 12px;
+    background: var(--crema-oscuro);
+    border-radius: var(--radio-sm);
+  }
+
+  /* Toggle publicadas */
+  .publicadas-toggle-wrap { margin-top: 8px; }
+  .publicadas-toggle {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    background: var(--crema-oscuro);
+    border: none;
+    border-radius: var(--radio-sm);
+    padding: 12px 16px;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--gris);
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .publicadas-toggle:hover { background: var(--gris-claro); color: var(--negro); }
+  .publicadas-toggle .material-symbols-rounded#icon-toggle-publicadas {
+    transition: transform 0.2s;
+  }
+  .publicadas-toggle.open #icon-toggle-publicadas {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 900px) {
+    .kanban-wrap {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
   /* ─── TARJETA PUBLICACIÓN ─── */
   .pub-card {
     background: var(--blanco);
@@ -2105,11 +2177,41 @@
               <button class="filtro-btn" onclick="filtrarTipo('Post', this)">Post</button>
               <button class="filtro-btn" onclick="filtrarTipo('Stories', this)">Stories</button>
               <button class="filtro-btn" onclick="filtrarTipo('Carrusel', this)">Carrusel</button>
+              <button class="filtro-btn" onclick="filtrarTipo('Web', this)">Web</button>
             </div>
           </div>
           <button class="btn-add-pub" onclick="abrirModalPub()"><span class="material-symbols-rounded">add</span> Publicación</button>
         </div>
-        <div class="pub-grid" id="pub-grid"></div>
+
+        <!-- Kanban -->
+        <div class="kanban-wrap">
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--gris)">lightbulb</span>
+              Ideas
+              <span class="kanban-count" id="kanban-count-idea">0</span>
+            </div>
+            <div class="pub-grid kanban-grid" id="pub-grid-idea"></div>
+          </div>
+          <div class="kanban-col">
+            <div class="kanban-col-header">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--morado)">event_available</span>
+              Programadas
+              <span class="kanban-count" id="kanban-count-prog">0</span>
+            </div>
+            <div class="pub-grid kanban-grid" id="pub-grid-prog"></div>
+          </div>
+        </div>
+
+        <!-- Publicadas (toggle) -->
+        <div class="publicadas-toggle-wrap">
+          <button class="publicadas-toggle" onclick="togglePublicadas()" id="btn-toggle-publicadas">
+            <span class="material-symbols-rounded" id="icon-toggle-publicadas">expand_more</span>
+            <span id="label-toggle-publicadas">Mostrar publicadas</span>
+            <span class="kanban-count" id="kanban-count-pub">0</span>
+          </button>
+          <div class="pub-grid" id="pub-grid-publicadas" style="display:none; margin-top:12px;"></div>
+        </div>
       </div>
       <div id="tab-calendario" style="display:none"></div>
       <div id="tab-historial" style="display:none"></div>
@@ -2543,10 +2645,16 @@ window.volverDashboard = function() {
   renderDashboard();
 };
 
+window.abrirPubDesdeDashboard = async function(clienteId, pubId) {
+  await window.seleccionarCliente(clienteId);
+  editarPub(pubId);
+};
+
 window.seleccionarCliente = async function(id) {
   S.clienteActivo = S.clientes.find(c => c.id === id);
   S.filtroTipo = 'todos';
   S.tabActiva = 'gestion';
+  S.mostrarPublicadas = false;
   cerrarSidebar();
   renderSidebar();
   await cargarPublicaciones(id);
@@ -2596,43 +2704,77 @@ function renderClienteHeader() {
 }
 
 // ─── RENDER PUBLICACIONES ───
+S.mostrarPublicadas = false;
+
 function renderPubs() {
   actualizarPanelDerecho();
   renderProximasBanner();
-  const grid = document.getElementById('pub-grid');
+
   let pubs = S.publicaciones;
   if (S.filtroTipo !== 'todos') pubs = pubs.filter(p => p.tipo === S.filtroTipo);
+
+  const sortFn = (a,b) => { const f = (a.fecha||'9999').localeCompare(b.fecha||'9999'); if (f !== 0) return f; return (a.hora||'').localeCompare(b.hora||''); };
+
+  // Dividir en 3 grupos
+  const ideas = pubs.filter(p => p.estado === 'Idea').sort(sortFn);
+  const programadas = pubs.filter(p => p.estado === 'Producción' || p.estado === 'Listo').sort(sortFn);
+  const publicadas = pubs.filter(p => p.estado === 'Publicado').sort((a,b) => sortFn(b,a));
+
+  renderColumna('pub-grid-idea', ideas, 'Sin ideas registradas');
+  renderColumna('pub-grid-prog', programadas, 'Sin publicaciones programadas');
+  renderColumna('pub-grid-publicadas', publicadas, 'Sin publicaciones publicadas');
+
+  document.getElementById('kanban-count-idea').textContent = ideas.length;
+  document.getElementById('kanban-count-prog').textContent = programadas.length;
+  document.getElementById('kanban-count-pub').textContent = publicadas.length;
+}
+
+function renderColumna(elId, pubs, emptyMsg) {
+  const grid = document.getElementById(elId);
+  if (!grid) return;
   if (!pubs.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1; color:var(--gris); text-align:center; padding:40px; font-size:0.9rem">
-      No hay publicaciones ${S.filtroTipo !== 'todos' ? 'de tipo ' + S.filtroTipo : 'aún'}. <br>
-      <button class="btn-primary" style="margin-top:12px" onclick="abrirModalPub()">+ Agregar</button>
-    </div>`;
+    grid.innerHTML = `<div class="kanban-empty">${emptyMsg}</div>`;
     return;
   }
-  const sorted = [...pubs].sort((a,b) => { const f = (a.fecha||'9999').localeCompare(b.fecha||'9999'); if (f !== 0) return f; return (a.hora||'').localeCompare(b.hora||''); });
-  grid.innerHTML = sorted.map(p => {
-    const tipoClass = `tipo-${p.tipo?.toLowerCase()}`;
-    const estadoClass = `estado-${ESTADOS[p.estado] || 'idea'}`;
-    const hashtags = p.hashtags ? p.hashtags.split(' ').slice(0,3).join(' ') : '';
-    return `
-    <div class="pub-card" onclick="editarPub('${p.id}')">
-      <div class="pub-card-top">
-        <span class="pub-tipo-badge ${tipoClass}">${tipoIcon(p.tipo)} ${p.tipo}</span>
-        <span class="pub-estado ${estadoClass}">${p.estado || 'Idea'}</span>
-      </div>
-      <div class="pub-titulo-card">${p.titulo}</div>
-      <div class="pub-caption">${p.caption || p.visual || 'Sin descripción'}</div>
-      <div class="pub-meta">
-        <div class="pub-meta-left">
-          <span class="pub-red">${p.red || '—'}</span>
-          ${p.tipo ? `<span class="pub-medida">${TIPOS[p.tipo]?.medida || ''}</span>` : ''}
-        </div>
-        <span>${p.fecha ? formatFecha(p.fecha) : 'Sin fecha'} ${p.hora ? '· ' + formatHora(p.hora) : ''}</span>
-      </div>
-
-    </div>`;
-  }).join('');
+  grid.innerHTML = pubs.map(p => renderPubCard(p)).join('');
 }
+
+function renderPubCard(p) {
+  const tipoClass = `tipo-${p.tipo?.toLowerCase()}`;
+  const estadoClass = `estado-${ESTADOS[p.estado] || 'idea'}`;
+  return `
+  <div class="pub-card" onclick="editarPub('${p.id}')">
+    <div class="pub-card-top">
+      <span class="pub-tipo-badge ${tipoClass}">${tipoIcon(p.tipo)} ${p.tipo}</span>
+      <span class="pub-estado ${estadoClass}">${p.estado || 'Idea'}</span>
+    </div>
+    <div class="pub-titulo-card">${p.titulo}</div>
+    <div class="pub-caption">${p.caption || p.visual || 'Sin descripción'}</div>
+    <div class="pub-meta">
+      <div class="pub-meta-left">
+        <span class="pub-red">${p.red || '—'}</span>
+        ${p.tipo ? `<span class="pub-medida">${TIPOS[p.tipo]?.medida || ''}</span>` : ''}
+      </div>
+      <span>${p.fecha ? formatFecha(p.fecha) : 'Sin fecha'} ${p.hora ? '· ' + formatHora(p.hora) : ''}</span>
+    </div>
+  </div>`;
+}
+
+window.togglePublicadas = function() {
+  S.mostrarPublicadas = !S.mostrarPublicadas;
+  const grid = document.getElementById('pub-grid-publicadas');
+  const btn = document.getElementById('btn-toggle-publicadas');
+  const label = document.getElementById('label-toggle-publicadas');
+  if (S.mostrarPublicadas) {
+    grid.style.display = 'grid';
+    btn.classList.add('open');
+    label.textContent = 'Ocultar publicadas';
+  } else {
+    grid.style.display = 'none';
+    btn.classList.remove('open');
+    label.textContent = 'Mostrar publicadas';
+  }
+};
 
 function tipoIcon(tipo) {
   const icons = { Reel: 'play_circle', Post: 'image', Stories: 'circles', Carrusel: 'auto_stories', Web: 'language' };
@@ -2952,7 +3094,7 @@ function renderHistorial() {
     return y === año && m === mes + 1;
   });
 
-  const conteo = { Reel: 0, Post: 0, Stories: 0, Carrusel: 0 };
+  const conteo = { Reel: 0, Post: 0, Stories: 0, Carrusel: 0, Web: 0 };
   pubsMes.forEach(p => { if (conteo[p.tipo] !== undefined) conteo[p.tipo]++; });
 
   let html = `
@@ -3554,7 +3696,7 @@ async function renderDashboard() {
     dashProxEl.innerHTML = proximas.map(p => {
       const cliente = S.clientes.find(c => c.id === p.clienteId);
       return `
-      <div class="dash-prox-item" onclick="seleccionarCliente('${p.clienteId}')">
+      <div class="dash-prox-item" onclick="abrirPubDesdeDashboard('${p.clienteId}','${p.id}')">
         <div class="dash-prox-dot" style="background:${colores[p.tipo] || 'var(--gris)'}"></div>
         <div class="dash-prox-info">
           <div class="dash-prox-titulo">${p.titulo}</div>
@@ -3641,7 +3783,7 @@ function renderDashCalendario(todasPubs) {
           ${pubs.map(p => {
             const cliente = S.clientes.find(c => c.id === p.clienteId);
             return `<div class="cal-pub cal-pub-${p.tipo?.toLowerCase()}" 
-              onclick="seleccionarCliente('${p.clienteId}')" 
+              onclick="abrirPubDesdeDashboard('${p.clienteId}','${p.id}')" 
               title="${p.titulo} — ${cliente ? cliente.nombre : ''}">
               ${tipoIcon(p.tipo)} ${p.titulo.length > 12 ? p.titulo.slice(0,12)+'…' : p.titulo}
             </div>`;
