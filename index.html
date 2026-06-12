@@ -708,6 +708,9 @@
   .kanban-grid {
     grid-template-columns: 1fr;
     gap: 12px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 4px;
   }
   .kanban-empty {
     text-align: center;
@@ -1548,6 +1551,51 @@
   .seo-contador-warn { color: var(--dorado) !important; }
   .seo-contador-error { color: var(--rojo-coral) !important; }
 
+  /* ─── CUENTAS DE COBRO ─── */
+  .cobro-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+  }
+  .cobro-titulo { font-size: 1.2rem; font-weight: 700; }
+  .cobro-card {
+    background: var(--blanco);
+    border-radius: var(--radio);
+    padding: 14px 16px;
+    box-shadow: var(--sombra);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.15s;
+  }
+  .cobro-icon {
+    width: 40px; height: 40px;
+    border-radius: var(--radio-sm);
+    background: rgba(255,92,92,0.1);
+    color: var(--rojo-coral);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cobro-info { flex: 1; min-width: 0; }
+  .cobro-nombre {
+    font-weight: 700; font-size: 0.9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .cobro-meta { font-size: 0.75rem; color: var(--gris); margin-top: 2px; }
+  .cobro-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .cobros-empty {
+    text-align: center; padding: 40px 20px; color: var(--gris); font-size: 0.9rem;
+  }
+  .cobro-upload-zone {
+    border: 2px dashed var(--gris-claro);
+    border-radius: var(--radio);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 16px;
+  }
+  .cobro-upload-zone:hover { border-color: var(--morado); background: rgba(131,95,253,0.04); }
+  .cobro-upload-zone.dragover { border-color: var(--morado); background: rgba(131,95,253,0.08); }
+
   /* ─── TAREAS ─── */
   .tareas-toolbar {
     display: flex; align-items: center; justify-content: space-between;
@@ -2165,6 +2213,7 @@
         <button class="tab" onclick="cambiarTab('calendario', this)">Calendario</button>
         <button class="tab" onclick="cambiarTab('historial', this)">Historial</button>
         <button class="tab" onclick="cambiarTab('tareas', this)">Tareas</button>
+        <button class="tab" onclick="cambiarTab('cobros', this)">Cuentas de cobro</button>
       </div>
       <!-- Panels -->
       <div id="tab-gestion">
@@ -2210,12 +2259,13 @@
             <span id="label-toggle-publicadas">Mostrar publicadas</span>
             <span class="kanban-count" id="kanban-count-pub">0</span>
           </button>
-          <div class="pub-grid" id="pub-grid-publicadas" style="display:none; margin-top:12px;"></div>
+          <div class="pub-grid kanban-grid" id="pub-grid-publicadas" style="display:none; margin-top:12px;"></div>
         </div>
       </div>
       <div id="tab-calendario" style="display:none"></div>
       <div id="tab-historial" style="display:none"></div>
       <div id="tab-tareas" style="display:none"></div>
+      <div id="tab-cobros" style="display:none"></div>
     </div>
   </main>
   <!-- PANEL DERECHO DESKTOP -->
@@ -2259,6 +2309,7 @@
           <div class="avatar-preview" id="form-avatar-preview" style="background:#835FFD">N</div>
           <button class="avatar-upload-btn" onclick="document.getElementById('avatar-file').click()"><span class="material-symbols-rounded">photo_camera</span> Subir foto</button>
           <input type="file" id="avatar-file" class="input-file-hidden" accept="image/*" onchange="handleAvatarUpload(event)">
+        <input type="file" id="cobro-file" class="input-file-hidden" accept="application/pdf" onchange="handleCobroUpload(event)">
         </div>
       </div>
       <div class="form-row">
@@ -2659,6 +2710,7 @@ window.seleccionarCliente = async function(id) {
   renderSidebar();
   await cargarPublicaciones(id);
   await cargarTareas(id);
+  await cargarCobros(id);
   renderClienteHeader();
   document.getElementById('panel-principal').style.display = 'none';
   document.getElementById('panel-cliente').style.display = 'block';
@@ -3203,9 +3255,11 @@ window.cambiarTab = function(tab, btn) {
   document.getElementById('tab-calendario').style.display = tab === 'calendario' ? 'block' : 'none';
   document.getElementById('tab-historial').style.display = tab === 'historial' ? 'block' : 'none';
   document.getElementById('tab-tareas').style.display = tab === 'tareas' ? 'block' : 'none';
+  document.getElementById('tab-cobros').style.display = tab === 'cobros' ? 'block' : 'none';
   if (tab === 'calendario') renderCalendario();
   if (tab === 'historial') renderHistorial();
   if (tab === 'tareas') renderTareas();
+  if (tab === 'cobros') renderCobros();
 };
 
 window.filtrarTipo = function(tipo, btn) {
@@ -4086,6 +4140,115 @@ async function actualizarDashTareas() {
 
   el.innerHTML = html;
 }
+
+// ─── CUENTAS DE COBRO ───
+S.cobros = [];
+
+async function cargarCobros(clienteId) {
+  const q = query(collection(db, 'cobros'), where('clienteId', '==', clienteId));
+  const snap = await getDocs(q);
+  S.cobros = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderCobros();
+}
+
+function renderCobros() {
+  const el = document.getElementById('tab-cobros');
+  if (!el) return;
+
+  const ordenados = [...S.cobros].sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+
+  let html = `
+  <div class="cobro-toolbar">
+    <span class="cobro-titulo">Cuentas de cobro</span>
+  </div>
+  <div class="cobro-upload-zone" id="cobro-dropzone" onclick="document.getElementById('cobro-file').click()">
+    <span class="material-symbols-rounded" style="font-size:2rem;color:var(--morado);display:block;margin-bottom:8px;">upload_file</span>
+    <div style="font-weight:700;font-size:0.9rem;margin-bottom:4px;">Subir cuenta de cobro</div>
+    <div style="font-size:0.8rem;color:var(--gris);">Click o arrastra un archivo PDF aquí (máx. 4MB)</div>
+  </div>`;
+
+  if (!ordenados.length) {
+    html += `<div class="cobros-empty">
+      <span class="material-symbols-rounded" style="font-size:2rem;display:block;margin-bottom:8px;color:var(--gris-claro)">receipt_long</span>
+      Sin cuentas de cobro aún
+    </div>`;
+  } else {
+    html += ordenados.map(c => `
+    <div class="cobro-card">
+      <div class="cobro-icon"><span class="material-symbols-rounded">picture_as_pdf</span></div>
+      <div class="cobro-info">
+        <div class="cobro-nombre">${c.nombre}</div>
+        <div class="cobro-meta">${c.fecha ? formatFecha(c.fecha) : ''} ${c.monto ? '· $' + c.monto : ''}</div>
+      </div>
+      <div class="cobro-actions">
+        <button class="btn-icon" title="Ver" onclick="verCobro('${c.id}')"><span class="material-symbols-rounded">visibility</span></button>
+        <button class="btn-icon" title="Eliminar" style="color:var(--rojo-coral)" onclick="eliminarCobro('${c.id}')"><span class="material-symbols-rounded">delete</span></button>
+      </div>
+    </div>`).join('');
+  }
+
+  el.innerHTML = html;
+
+  // Drag & drop
+  const dz = document.getElementById('cobro-dropzone');
+  if (dz) {
+    dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('dragover'); };
+    dz.ondragleave = () => dz.classList.remove('dragover');
+    dz.ondrop = (e) => {
+      e.preventDefault();
+      dz.classList.remove('dragover');
+      if (e.dataTransfer.files.length) procesarCobroFile(e.dataTransfer.files[0]);
+    };
+  }
+}
+
+window.handleCobroUpload = function(e) {
+  const file = e.target.files[0];
+  if (file) procesarCobroFile(file);
+};
+
+function procesarCobroFile(file) {
+  if (file.type !== 'application/pdf') {
+    toast('Solo se permiten archivos PDF', 'error');
+    return;
+  }
+  if (file.size > 4 * 1024 * 1024) {
+    toast('El archivo no puede superar 4MB', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      await addDoc(collection(db, 'cobros'), {
+        clienteId: S.clienteActivo.id,
+        nombre: file.name.replace('.pdf',''),
+        archivo: ev.target.result,
+        fecha: toDateStr(new Date()),
+        createdAt: new Date().toISOString(),
+      });
+      toast('Cuenta de cobro subida ✓', 'success');
+      await cargarCobros(S.clienteActivo.id);
+    } catch(e) { toast('Error al subir', 'error'); console.error(e); }
+  };
+  reader.readAsDataURL(file);
+}
+
+window.verCobro = function(id) {
+  const c = S.cobros.find(x => x.id === id);
+  if (!c) return;
+  // Abrir el PDF base64 en una nueva pestaña
+  const win = window.open();
+  win.document.write(`<iframe src="${c.archivo}" style="width:100%;height:100%;border:none;"></iframe>`);
+};
+
+window.eliminarCobro = async function(id) {
+  if (!confirm('¿Eliminar esta cuenta de cobro?')) return;
+  try {
+    await deleteDoc(doc(db, 'cobros', id));
+    await cargarCobros(S.clienteActivo.id);
+    toast('Eliminada', 'success');
+  } catch(e) { toast('Error al eliminar', 'error'); }
+};
 
 // ─── INIT ───
 window.addEventListener('load', () => {
